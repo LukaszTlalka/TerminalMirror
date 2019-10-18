@@ -1,0 +1,129 @@
+.console-tutorial {
+    display:block;
+    height:calc(100% - 56px);
+    color: white;
+
+    .main-message {
+        #motive {
+            display: none;
+
+            .btn {
+                font-size: 14px;
+                text-transform: uppercase;
+                font-weight: bold;
+                margin: 30px 10px;
+                padding: 10px 20px;
+            }
+
+        }
+
+        b {
+            color:white;
+            font-size:50px;
+        }
+
+        position: absolute;
+        text-align: center;
+        width: 100%;
+        top: 38%;
+        color: #988345;
+
+        h1 {
+            padding-top: 30px;
+            font-size: 32px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+    }
+
+    .spleet {
+        height:100%;
+        width:100%;
+        background: url("/images/texture-dark.png");
+
+        .half-screen {
+            display:inline-block;
+            width:50%;
+            height:100%;
+        }
+
+        .screen1 {
+            float:left;
+            position:relative;
+        }
+
+        .screen2 {
+            background: rgba(24,25,26,0.7);
+            float:right;
+            position:relative;
+        }
+    }
+
+    #tutor-chat-window, #tutor-chat-second-window {
+        position: absolute;
+        width: 600px;
+        height: 500px;
+        max-width:64%;
+        top: 90px;
+        left: 90px;
+    }
+
+    #tutor-chat-second-window {
+        width:400px;
+    }
+
+    #tutor-terminal-window {
+        position: absolute;
+        width: 600px;
+        height: 500px;
+        max-width:93%;
+    }
+
+    .window {
+        margin: 20px;
+        display: none;
+        padding-top:10%;
+
+        .title {
+            background-color: #00ADEA;
+            border-radius: 10px 10px 0px 0px;
+            padding:5px 20px;
+            font-weight: bold;
+        }
+
+        .terminal {
+            overflow:auto;
+            background: rgba(24,25,26);
+            padding: 10px;
+            width: 100%;
+            font-size: 17px;
+            height: 100%;
+            min-height: 200px;
+        }
+        .chat {
+            overflow:auto;
+            background: rgba(24,25,26);
+            padding: 10px;
+            width: 100%;
+            font-size: 17px;
+            height: 100%;
+            min-height: 200px;
+
+            .form-control {
+                height: 66px;
+            }
+
+            .messages {
+                height: calc(100% - 67px);
+
+                .message {
+                    display:block;
+                }
+            }
+        }
+    }
+
+    .terminal {
+        font-family: monospace;
+    }
+}

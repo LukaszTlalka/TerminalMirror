@@ -8,11 +8,14 @@ class Tutorial {
     constructor() {
         this.lineCounter = 0;
         this.queueDelay = 0;
+
+        this.commandText = "curl --request POST --include --header \\\n'Content-Type: application/json'\\\n--data-binary @- --no-buffer \\\nhttp://lukas.localdev/LukaszTlalka/terminal-helper/check/test.php";
     }
 
-    initDom(tutorWindow, chat1Window, chat2Window) {
+    initDom(tutorWindow, chat1Window, chat2Window, browser1Window, browser2Window) {
         this.$tutorWindow = tutorWindow;
         this.$chatWindows = [ chat1Window, chat2Window ];
+        this.$browserWindows = [ browser1Window, browser2Window ];
 
         this.$tutorTerminal = tutorWindow.find('.terminal');
         this.$chatMessages = [ chat1Window.find('.messages'), chat2Window.find('.messages') ];
@@ -37,6 +40,8 @@ class Tutorial {
                         $("#"+lineID).siblings('.typed-cursor').remove();
                     }, 200);
                     self.scrollTerminal();
+
+                    resolve();
                 }
             }, options));
         } else {
@@ -58,12 +63,40 @@ class Tutorial {
         }).attr('class', 'window zoomIn animated');
     }
 
-    openChatWindow(chatId, title) {
-        this.$chatWindows[chatId].find('.title').html(title);
+    hideWindow(type, id) {
+        let window = type == 'chat' ? this.$chatWindows[id] : this.$browserWindows[id];
 
-        this.$chatWindows[chatId].css({
+        window.css({
+            display: 'none'
+        });
+    }
+
+    openWindow(type, id, title) {
+
+        let window = type == 'chat' ? this.$chatWindows[id] : this.$browserWindows[id];
+
+        window.find('.title-text').html(title);
+
+        window.css({
             display: 'inline-block'
         }).attr('class', 'window zoomIn animated');
+    }
+
+    setBrowserUrl(browserId, url, delay = 50) {
+        let typeMessageId = "#" + this.$browserWindows[browserId].attr('id') + " .type-message"
+        $(typeMessageId).html("");
+
+        if (delay == 0)
+           return $(typeMessageId).html(url);
+
+        let typed = new Typed(typeMessageId, {
+            strings: [url],
+            typeSpeed: delay,
+            onComplete: () => {
+                typed.destroy();
+                $(typeMessageId).html(url);
+            }
+        });
     }
 
     sendChatMessage(chatId, from, msg, isReceived = false) {
@@ -92,13 +125,76 @@ class Tutorial {
         });
     }
 
-    start(tutorWindow, chat1Window, chat2Window, options = {}) {
-        this.initDom($(tutorWindow), $(chat1Window), $(chat2Window));
+    setupConnection() {
+        this.queue(500, () => {
+            this.openWindow('browser', 0, 'Web Browser');
+        })
 
+        this.queue(500, () => {
+            this.setBrowserUrl(0, "https://www.consoleshare.com/new-session");
+        })
+
+        this.queue(3000, () => {
+            this.$browserWindows[0].find(".page-new-session").css({ display: 'flex'});
+        })
+
+        this.queue(1500, () => {
+            this.$browserWindows[0].find(".show-command").addClass("pulse animated")
+        })
+
+        this.queue(600, () => {
+            this.$browserWindows[0].find(".code").html(this.commandText.replace(/\n/g, "<br>"));
+            $('.new-session-created').show();
+            this.$browserWindows[0].find(".show-command").hide();
+
+            for (i = 0; i <= this.commandText.length; i++) {
+                setTimeout((i) => {
+                    let beg = this.commandText.substr(0, i);
+                    let end = this.commandText.substr(i);
+                    this.$browserWindows[0].find(".code").html("<span class='selected'>" + beg.replace(/\n/g, "<br>") + "</span>" + end.replace(/\n/g, "<br>"));
+                }, 1300 + 5*i, [i])
+            }
+        })
+
+
+        this.queue(4500, () => {
+            this.hideWindow('browser', 0);
+            this.hideWindow('chat', 0);
+        });
+
+        this.queue(500, () => {
+            this.openConsoleWindow();
+        })
+
+        this.queue(1000, () => {
+            this.pushToTerm({ strings: [ this.commandText ], delay: 10 })
+        })
+
+        this.queue(300, () => {
+            this.setBrowserUrl(0, "https://www.consoleshare.com/session/e529eb1eade0b214c4", 0);
+        })
+
+        this.queue(500, () => {
+            this.openWindow('browser', 0, 'Web Browser');
+        })
+
+
+        this.queue(500, () => {
+            this.$browserWindows[0].find(".page-console").show();
+            this.$browserWindows[0].find(".page-new-session").hide();
+        })
+    }
+
+    start(tutorWindow, chat1Window, chat2Window, browser1Window, browser2Window, options = {}) {
+        this.initDom($(tutorWindow), $(chat1Window), $(chat2Window), $(browser1Window), $(browser2Window));
+
+        this.setupConnection();
+
+        return;
         this.openConsoleWindow();
         let prompt = (delay = 100) => {
             this.queue(delay, () => {
-                this.pushToTerm({ strings: [ '<br><span class="text-success">root</span>@localhost /home/admin# ' ]})
+                this.pushToTerm({ strings: [ '<br><span class="text-success">root</span>@main-serv /home/admin# ' ]})
             })
         };
 
@@ -111,7 +207,7 @@ class Tutorial {
         })
 
         this.queue(1800, () => {
-            this.pushToTerm({ strings: [ '<br>admin@localhost\'s password: ' ]})
+            this.pushToTerm({ strings: [ '<br>admin@main-serv\'s password: ' ]})
         })
         this.queue(2000, () => {});
 
@@ -133,7 +229,7 @@ class Tutorial {
 
 
         this.queue(500, () => {
-            this.pushToTerm({ strings: [ '<br><span class="text-success">admin</span>@localhost ~$ ' ]})
+            this.pushToTerm({ strings: [ '<br><span class="text-success">admin</span>@main-serv ~$ ' ]})
         })
 
         this.queue(1500, () => {
@@ -148,7 +244,7 @@ class Tutorial {
 
 
         this.queue(1500, () => {
-            this.pushToTerm({ strings: ['<br><span class="text-danger">curl: (7) Failed to connect to localhost port 3412: Connection refused<span>']});
+            this.pushToTerm({ strings: ['<br><span class="text-danger">curl: (7) Failed to connect to localhost port 80: Connection refused<span>']});
         })
 
         prompt();
@@ -202,7 +298,7 @@ The Apache error log may have more information.<br>
         }
 
         this.queue(5000, () => {
-            this.openChatWindow(0, details.needingHelp.chatTitle);
+            this.openWindow('chat', 0, details.needingHelp.chatTitle);
         })
 
         this.queue(1000, () => {
@@ -210,7 +306,7 @@ The Apache error log may have more information.<br>
         })
 
         this.queue(5000, () => {
-            this.openChatWindow(1, details.guru.chatTitle);
+            this.openWindow('chat', 1, details.guru.chatTitle);
         })
 
         this.queue(3000, () => {
@@ -221,10 +317,12 @@ The Apache error log may have more information.<br>
             this.sendChatMessage(0, details.needingHelp.name, "Of course I did");
         })
 
-        this.queue(2000, () => {
+        this.queue(2500, () => {
             this.sendChatMessage(1, details.guru.name, "Can you share your terminal?");
         });
 
+        this.queue(2000, () => {});
+        this.setupConnection();
 
     }
 }

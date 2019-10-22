@@ -6,7 +6,13 @@
 
 require('./bootstrap');
 
+
 window.Vue = require('vue');
+
+import bFormSlider from 'vue-bootstrap-slider';
+import 'bootstrap-slider/dist/css/bootstrap-slider.css'
+
+Vue.use(bFormSlider)
 
 /**
  * The following block of code may be used to automatically register your

@@ -61,7 +61,7 @@
 <script>
 const Typed = require('typed.js');
 export default {
-    props: ['windowData'],
+    props: ['windowData', 'speedRun'],
     methods: {
         scroll() {
             setTimeout( () => {
@@ -75,7 +75,7 @@ export default {
             var self = this;
 
             return new Promise((resolve) => {
-                if (options.typeSpeed) {
+                if (options.typeSpeed && this.speedRun == false) {
                     let typed = new Typed("#" + lineID, Object.assign({
                         onComplete: function() {
                             setTimeout( () => {
@@ -98,6 +98,7 @@ export default {
         },
         sendChatMessage(from, text, otherWindow = null, typeSpeed = 20) {
 
+
             if (otherWindow == null) {
                 this.messages.push({ text, from })
                 this.scroll();
@@ -106,6 +107,13 @@ export default {
 
             return new Promise((resolve) => {
                 let typeMessageId = "#" + this.windowData.name + '-window .type-message';
+
+                if (this.speedRun) {
+                    this.messages.push({ text, from: 'Me' })
+                    this.scroll();
+                    resolve();
+                    return;
+                }
 
                 let typed = new Typed(typeMessageId, {
                     strings: [text],
@@ -126,7 +134,7 @@ export default {
         setBrowserUrl(url, delay = 50) {
             let typeMessageId = "#" + this.windowData.name + '-window .type-message';
 
-            if (delay == 0) {
+            if (delay == 0 || this.speedRun) {
                 $(typeMessageId).html(url);
 
                 return Promise.resolve();

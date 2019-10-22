@@ -2,87 +2,17 @@
     <div class='full-page'>
         <div class='spleet'>
             <div class='half-screen screen1'>
-
-                <window-component v-bind:windowData="display.noob.terminalWindow"></window-component>
-                <window-component v-bind:windowData="display.noob.chatWindow"></window-component>
-                <window-component v-bind:windowData="display.noob.browserWindow"></window-component>
-
-                <!--
-                <span class="window" id='tutor-terminal-window' style="display:none">
-                    <div class="title">Terminal session <span class="float-right"><i class="far fa-window-minimize"></i> &nbsp; <i class="far fa-times-circle"></i></span></div>
-                    <div class='terminal'></div>
-                </span>
-                -->
-
-                <span class="window" id='tutor-chat-window' style="display:none">
-                    <div class="title"><span class='title-text'></span> <span class="float-right"><i class="far fa-window-minimize"></i> &nbsp; <i class="far fa-times-circle"></i></span></div>
-
-                    <div class="chat">
-                        <div class="messages"></div>
-                        <div class="input-group">
-                            <div class="form-control"><span class="type-message"></span></div>
-                            <div class="input-group-append">
-                                <button class="btn btn-success" type="button"><i class="fas fa-comments"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </span>
-
-                <span class="window" id='tutor-browser-window' style="display:none">
-                    <div class="title"><span class='title-text'></span> <span class="float-right"><i class="far fa-window-minimize"></i> &nbsp; <i class="far fa-times-circle"></i></span></div>
-
-                    <div class="browser">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <button class="btn btn-info no-radius" type="button"><i class="fas fa-arrow-left"></i></button>
-                            </div>
-                            <div class="input-group-prepend">
-                                <button class="btn btn-info no-radius" type="button"><i class="fas fa-arrow-right"></i></button>
-                            </div>
-                            <div class="form-control"><span class="type-message"></span></div>
-                            <div class="input-group-append">
-                                <button class="btn btn-info no-radius" type="button"><i class="fas fa-sync-alt"></i></button>
-                            </div>
-                        </div>
-                        <div class="messages">
-                            <div class="page page-console">
-                                <b><i class="fas fa-terminal"></i> ConsoleShare</b>
-                                <div class='terminal'></div>
-                            </div>
-                            <div class="page page-new-session">
-                                <div class="text-center">
-                                    <h6><i class="fas fa-terminal"></i> ConsoleShare</h6>
-                                    <button class="btn btn-success show-command">Create Session</button>
-                                    <div class="new-session-created">
-
-                                        <div class="alert alert-info" role="alert">
-                                            New session has been created. To start please <b>run</b>:
-                                        </div>
-                                        <div class='code'></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </span>
+                <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.noob.terminalWindow"></window-component>
+                <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.noob.chatWindow"></window-component>
+                <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.noob.browserWindow"></window-component>
             </div>
             <div class='half-screen screen2'>
-                <window-component v-bind:windowData="display.guru.chatWindow"></window-component>
-                <window-component v-bind:windowData="display.guru.browserWindow"></window-component>
-
-                <span class="window" id='tutor-chat-second-window' style="display:none">
-                    <div class="title"><span class='title-text'></span> <span class="float-right"><i class="far fa-window-minimize"></i> &nbsp; <i class="far fa-times-circle"></i></span></div>
-
-                    <div class="chat">
-                        <div class="messages"></div>
-                        <div class="input-group">
-                            <div class="form-control"><span class="type-message"></span></div>
-                            <div class="input-group-append">
-                                <button class="btn btn-success" type="button"><i class="fas fa-comments"></i></button>
-                            </div>
-                        </div>
-                    </div>
+                <span class='scenario-slider animate pulse' v-if="!display.mainMessage.show">
+                    <b-form-slider :value="slider.value" :min="0" :max="slider.max"  @slide-stop="slideStop"></b-form-slider>
                 </span>
+
+                    <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.guru.chatWindow"></window-component>
+                    <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.guru.browserWindow"></window-component>
             </div>
         </div>
         <div class="main-message animated fadeIn" v-if="display.mainMessage.show">
@@ -102,15 +32,34 @@ export default {
     mounted() {
         this.scenario = new RandomScenario(this);
 
-        this.startTutorial();
+        this.scenario.event.on('steps:change', (step) => {
+            this.slider.value = step;
+        })
+
+        this.scenario.event.on('steps:loaded', (total) => {
+            this.slider.max = total;
+        })
+
+
+        /*
+            this.display.mainMessage.show = false;
+            this.scenario.startTutorial();
+            this.scenario.jumpToStep(30)
+        */
     },
     data: function () {
         return {
+            enabled: true,
             scenario: null,
+            speedRun: false,
+            slider: {
+                value: 0,
+                max: 100,
+            },
             display: {
                 mainMessage: {
                     show: true,
-                    showMotive: true
+                    showMotive: true,
                 },
                 noob: {
                     terminalWindow: {
@@ -118,7 +67,7 @@ export default {
                         type: 'terminal',
                         title: 'Termianl session',
                         show: false,
-                        active: false
+                        active: false,
                     },
                     chatWindow: {
                         name: 'noob-chat',
@@ -126,25 +75,25 @@ export default {
                         title: 'chat',
                         show: false,
                         class: 'chat-window-50 offset-small',
-                        active: false
+                        active: false,
                     },
                     browserWindow: {
                         name: 'noob-browser',
                         type: 'browser',
                         title: 'Web Browser',
-                        show: true,
+                        show: false,
                         class: 'offset-large',
                         active: true,
                         browser: {
                             showNewSession: false,
                             showNewSessionCreated: false,
                             showSpinner: false,
-                            showTerminal: true,
+                            showTerminal: false,
                             runButtonAnimation: false,
                             showButton: false,
                             bashBeg: '',
                             bashEnd: '',
-                        }
+                        },
                     }
                 },
                 guru: {
@@ -154,25 +103,25 @@ export default {
                         title: 'chat',
                         show: false,
                         class: 'chat-window-guru',
-                        active: false
+                        active: false,
                     },
                     browserWindow: {
                         name: 'guru-browser',
                         type: 'browser',
                         title: 'Web Browser',
-                        show: true,
+                        show: false,
                         class: 'offset-large',
                         active: true,
                         browser: {
                             showNewSession: false,
                             showNewSessionCreated: false,
                             showSpinner: false,
-                            showTerminal: true,
+                            showTerminal: false,
                             runButtonAnimation: false,
                             showButton: false,
                             bashBeg: '',
                             bashEnd: '',
-                        }
+                        },
                     }
                 },
             }
@@ -182,7 +131,10 @@ export default {
         startTutorial() {
             this.display.mainMessage.show = false;
 
-            this.scenario.startTutorial(this);
+            this.scenario.startTutorial();
+        },
+        slideStop(step) {
+            this.scenario.jumpToStep(step)
         }
     }
 }

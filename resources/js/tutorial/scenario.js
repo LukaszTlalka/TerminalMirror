@@ -1,9 +1,21 @@
-class Scenario {
+const EventClass = require("event-class").default;
+
+class Scenario{
     constructor(tutorialComponent, chatDetails = {}) {
         this.chatDetails = chatDetails;
         this.tutorialComponent = tutorialComponent;
         this.steps = [];
-        this.isRunning = false;
+
+        /*
+         * Control step scrolling
+         */
+        this.jumpToStepNum = false;
+        this.stepRunning = false;
+        this.stepTimeout = false;
+        this.forceStop = false;
+        this.tutorialDisplay = JSON.stringify(this.tutorialComponent.display);
+
+        this.event = new EventClass();
 
         this.bash = "curl --request POST --include --header \\\n'Content-Type: application/json'\\\n--data-binary @- --no-buffer \\\nhttp://lukas.localdev/LukaszTlalka/terminal-helper/check/test.php";
         this.newSessionUrl = 'https://www.consoleshare.com/new-session';
@@ -47,6 +59,14 @@ class Scenario {
 
                 noobBrowserWindow.browser.bashBeg = "";
                 noobBrowserWindow.browser.bashEnd = this.bash;
+
+
+                if (this.speedRun) {
+                    noobBrowserWindow.browser.bashBeg = this.bash;
+                    noobBrowserWindow.browser.bashEnd = "";
+                    resolve();
+                    return;
+                }
 
                 for (i = 0; i <= this.bash.length; i++) {
                     setTimeout((i) => {
@@ -119,7 +139,7 @@ class Scenario {
         });
 
         this.addStep(1000, () => {
-            return noobChatWindow.sendChatMessage(this.chatDetails.noob.name, "Here it is:", guruChatWindow, 0);
+            return noobChatWindow.sendChatMessage(this.chatDetails.noob.name, "Here it is:", guruChatWindow);
         });
 
         this.addStep(300, () => {
@@ -162,20 +182,84 @@ class Scenario {
 
     startTutorial() {
         this.currentStep = 0;
-
         this.runStep();
     }
 
+    recursiveCopyDisplay(copyTo, copyFrom) {
+        Object.keys(copyFrom).map(key => {
+            if (copyFrom[key].constructor.name === "Object") {
+                this.recursiveCopyDisplay(copyTo[key], copyFrom[key]);
+            } else {
+                copyTo[key] = copyFrom[key];
+            }
+        });
+    }
+
+    jumpToStep(stepID) {
+        this.jumpToStepNum = stepID;
+        this.forceStop = true;
+
+        let runningChkInterval = setInterval(() => {
+            clearTimeout(this.stepTimeout);
+            if (this.stepRunning) {
+                return;
+            }
+
+            clearInterval(runningChkInterval);
+
+            if (stepID < this.currentStep) {
+                this.recursiveCopyDisplay(this.tutorialComponent.display, JSON.parse(this.tutorialDisplay));
+
+                this.currentStep = 0;
+                this.tutorialComponent.enabled = false;
+                this.tutorialComponent.$forceUpdate();
+
+                setTimeout(() => {
+                    this.tutorialComponent.enabled = true;
+                    this.tutorialComponent.display.mainMessage.show = false;
+                    this.tutorialComponent.speedRun = true;
+
+                    this.speedRun = true;
+                    this.forceStop = false;
+
+                    this.runStep();
+                }, 100);
+
+                return;
+            }
+
+            this.tutorialComponent.speedRun = true;
+
+            this.speedRun = true;
+            this.forceStop = false;
+
+            this.runStep();
+        }, 10)
+    }
+
     runStep() {
-        if (!this.steps[ this.currentStep ])
+        this.tutorialComponent.$forceUpdate();
+
+
+        if (this.forceStop || !this.steps[ this.currentStep ])
             return;
 
-        setTimeout(() => {
-            this.steps[ this.currentStep ].closure().then( () => {
+        this.stepTimeout = setTimeout(() => {
+            this.stepRunning = true;
+            this.event.trigger("steps:change", this.currentStep);
+            this.steps[ this.currentStep ].closure(this.speedRun).then( () => {
+                this.stepRunning = false;
                 this.currentStep++;
+
                 this.runStep();
+
+                if (this.jumpToStepNum !== false && this.currentStep >= this.jumpToStepNum) {
+                    this.jumpToStepNum = false;
+                    this.tutorialComponent.speedRun = false;
+                    this.speedRun = false;
+                }
             } )
-        },this.steps[ this.currentStep ].delay);
+        }, this.speedRun ? 0 : this.steps[ this.currentStep ].delay);
     }
 }
 

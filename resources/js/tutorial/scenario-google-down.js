@@ -30,36 +30,6 @@ class ScenarioGoogleDown extends Scenario {
             });
         };
 
-        let commands = [
-            { type: 'whoami', output: '<br>root<br>&gt;_ $ ', wait: 2000 },
-            { type: 'service apache2 start', output: `<br><span class="text-danger"> * Starting Apache httpd web server apache2<br>
-AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.25.0.7. Set the 'ServerName' directive globally to suppress this message<br>
-(13)Permission denied: AH00072: make_sock: could not bind to address 0.0.0.0:80<br>
-no listening sockets available, shutting down<br>
-AH00015: Unable to open logs<br>
-Action 'start' failed.<br>
-The Apache error log may have more information.<br>
-</span><br>&gt;_ $ `, wait: 2000 }
-        ];
-
-        commands.map( command => {
-            this.addStep(command.wait, () => {
-                return Promise.all([
-                    noobBrowserWindow.pushToTerm({ strings: [ command.type ], typeSpeed: 50 }),
-                    guruBrowserWindow.pushToTerm({ strings: [ command.type ], typeSpeed: 50 })
-                ]);
-            })
-
-            this.addStep(100, () => {
-                return Promise.all([
-                    noobBrowserWindow.pushToTerm({ strings: [ command.output ], typeSpeed: 0 }),
-                    guruBrowserWindow.pushToTerm({ strings: [ command.output ], typeSpeed: 0 })
-                ]);
-            })
-        });
-
-        return;
-
         this.addStep(500, () => {
             terminalWindow.show = true;
             terminalWindow.active = true;
@@ -148,19 +118,17 @@ The Apache error log may have more information.<br>
 
         this.addStep(10, () => {
             return terminalWindow.pushToTerm({ strings: [ `<br><span class="text-danger"> * Starting Apache httpd web server apache2<br>
-AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.25.0.7. Set the 'ServerName' directive globally to suppress this message<br>
 (13)Permission denied: AH00072: make_sock: could not bind to address 0.0.0.0:80<br>
 no listening sockets available, shutting down<br>
 AH00015: Unable to open logs<br>
 Action 'start' failed.<br>
-The Apache error log may have more information.<br>
+The Apache error log may have more information.
 </span>` ]})
         })
-
+ 
         prompt();
 
         // chat communication
-
         this.addStep(2500, () => {
             noobChatWindow.title = details.noob.chatTitle;
             guruChatWindow.title = details.guru.chatTitle;
@@ -197,8 +165,76 @@ The Apache error log may have more information.<br>
         this.addStep(1000, () => {
             return Promise.resolve();
         });
-       
+
         this.genericSteps();
+
+        let commands = [
+            { type: '&nbsp;whoami', output: '<br>root<br>&gt;_ $ ', wait: 2000 },
+            { type: 'service apache2 start', output: `<br><span class="text-danger"> * Starting Apache httpd web server apache2<br>
+(13)Permission denied: AH00072: make_sock: could not bind to address 0.0.0.0:80<br>
+no listening sockets available, shutting down<br>
+AH00015: Unable to open logs<br>
+Action 'start' failed.<br>
+The Apache error log may have more information.
+</span><br>&gt;_ $ `, wait: 2000 },
+            { type: 'rm -r /var/run/apache2', output: '<br>&gt;_ $ ', wait: 1000 },
+            { type: 'service apache2 start', output: `<br>* Starting Apache httpd web server apache2<br>&gt;_ $ `, wait: 500 },
+            { type: 'curl -X HEAD -I http://localhost', output: `<br>HTTP/2 200
+<br>expires: -1
+<br>cache-control: private, max-age=0
+<br>content-type: text/html; charset=ISO-8859-1
+<br>p3p: CP="This is not a P3P policy! See g.co/p3phelp for more info."
+<br>server: gws
+<br>x-xss-protection: 0
+<br>x-frame-options: SAMEORIGIN
+<br>set-cookie: 1P_JAR=2019-10-21-20; expires=Wed, 20-Nov-2019 20:28:14 GMT; path=/; domain=.google.com; SameSite=none
+<br>set-cookie: NID=189=Cjyo9RpUPAAshEPlZekSc-9owPJ85BuDDNQgEvdfwcmKox2YW3qvtV-Fnn-85NQ; expires=Tue, 21-Apr-2020 20:28:14 GMT; path=/; domain=.google.com; HttpOnly
+<br>alt-svc: quic=":443"; ma=2592000; v="46,43",h3-Q048=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000
+<br>accept-ranges: none
+<br>vary: Accept-Encoding
+<br>&gt;_ $ `, wait: 500 },
+        ];
+
+        commands.map( command => {
+            this.addStep(command.wait, () => {
+                return Promise.all([
+                    noobBrowserWindow.pushToTerm({ strings: [ command.type ], typeSpeed: 50 }),
+                    guruBrowserWindow.pushToTerm({ strings: [ command.type ], typeSpeed: 50 })
+                ]);
+            })
+
+            this.addStep(100, () => {
+                return Promise.all([
+                    noobBrowserWindow.pushToTerm({ strings: [ command.output ], typeSpeed: 0 }),
+                    guruBrowserWindow.pushToTerm({ strings: [ command.output ], typeSpeed: 0 })
+                ]);
+            })
+        });
+
+        this.addStep(1000, () => {
+            guruChatWindow.active = true;
+            guruBrowserWindow.active = false;
+            return Promise.resolve();
+        })
+
+        this.addStep(500, () => {
+            return guruChatWindow.sendChatMessage(details.guru.name, "Site is back up now", noobChatWindow);
+        })
+
+        this.addStep(1000, () => {
+            noobChatWindow.active = true;
+            noobBrowserWindow.active = false;
+
+            return Promise.resolve();
+        })
+
+        this.addStep(1000, () => {
+            return noobChatWindow.sendChatMessage(details.noob.name, "Thank you.", guruChatWindow);
+        })
+
+        setTimeout(() => {
+            this.event.trigger("steps:loaded", this.steps.length);
+        }, 100);
     }
 }
 

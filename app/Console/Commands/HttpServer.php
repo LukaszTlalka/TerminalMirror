@@ -47,7 +47,7 @@ class HttpServer extends Command
     private function startServer()
     {
         \Amp\Loop::run(function () {
-            $server = \Amp\Socket\listen("127.0.0.1:3005");
+            $server = \Amp\Socket\listen("0.0.0.0:".env("APP_SERVER_PORT"));
 
             echo "Listening for new connections on " . $server->getAddress() . " ..." . PHP_EOL;
             echo "Open your browser and visit http://" . $server->getAddress() . "/" . PHP_EOL;

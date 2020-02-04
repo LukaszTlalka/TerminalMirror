@@ -15,10 +15,23 @@ class Client
     private $expect100Reached = false;
 
     /**
+     * @var extracted from the header of the message
+     */
+    private $userAuth = null;
+
+    /**
+     * @var do we need to initialize storage
+     */
+     private $storage = null;
+
+    /**
      * @var \App\Server\ChunkReader - data that delivers chunks / usually socket
      */
     private $reader = null;
 
+    /**
+     * @param $reader - reader provides the data
+     */
     public function __construct(\App\Server\ChunkReader $reader)
     {
         $this->reader = $reader;
@@ -27,10 +40,58 @@ class Client
 
         $reader->registerReadListener(function($chunk) use ($client) {
             $client->messageBuffer .= $chunk;
-            $client->parseBuffer();
+
+            //file_put_contents("/tmp/chunks-dd", $chunk, FILE_APPEND);
+
+            if ( count($chunks = $client->parseBuffer()) > 0 ) {
+                $this->logBufferChunk($chunks);
+            }
         });
 
         $reader->start();
+    }
+
+    /**
+     * store chunk in the input file
+     */
+    public function logBufferChunk($chunks)
+    {
+        list($userID, $pass) = explode(":", $this->userAuth);
+
+        if (!preg_match('/^[a-f0-9]{32}$/', $userID)) {
+            $this->end();
+        }
+
+        if (!$this->storage) {
+            try {
+                $this->storage = new Storage($userID, false);
+                
+                // check if input has been initialized
+                // so that we don't have two users pushing data to the same input
+                if (trim($this->storage->inputGet()) != "initialized") {
+                    throw new \Exception("Already taken or input not initialized.");
+                }
+
+                $this->storage->inputAppend("curl-started");
+            } catch (\Exception $e) {
+
+                if (config('app.env') != 'production') {
+                    throw $e;
+                }
+
+                $this->end();
+            }
+        }
+
+        foreach ($chunks as $chunk) {
+            $chunkString = json_encode([
+                'v' => 1,
+                'chunk' => base64_encode($chunk),
+                'microtime' => microtime(true)
+            ]);
+
+            $this->storage->inputAppend($chunkString);
+        }
     }
 
     public function end()
@@ -44,100 +105,58 @@ class Client
     public function parseBuffer()
     {
         if (!$this->expect100Reached) {
-            if (($expectPos = strpos($this->messageBuffer, "Expect: 100-continue\r\n")) !== false) {
-                $this->messageBuffer = substr($expectPos + 22, $expectPos);
+            $expect100Continue = "Expect: 100-continue\r\n";
+            if (($expectPos = strpos($this->messageBuffer, $expect100Continue)) !== false) {
+
+                $header = substr($this->messageBuffer, 0, $expectPos + strlen($expect100Continue) + 2);
+
+                if (!preg_match("/Authorization: Basic (.*?)\r\n/", $header, $clientInfo)) {
+                    $this->abort();
+                    return [];
+                }
+
+                $this->userAuth = base64_decode($clientInfo[1]);
+
+                $this->messageBuffer = substr($this->messageBuffer, $expectPos + strlen($expect100Continue) + 2);
                 $this->expect100Reached = true;
+
+                return $this->parseBuffer();
             }
+
+            return [];
         }
 
         if (!$this->expect100Reached && strlen($this->messageBuffer) > 1000 ) {
-            return $this->abort();
+            $this->abort();
+            return [];
         }
 
-        //preg_match("/[0-9"]", 3ls
+        if (preg_match("/^([0-9a-f]*)\r\n/i", $this->messageBuffer, $res)) {
+            $chunkSizeHex = $res[1];
+            $chunkSize = hexdec($chunkSizeHex);
+            $chunk = substr($this->messageBuffer, strlen($chunkSizeHex) + 2, $chunkSize);
 
-        echo $this->messageBuffer;
-    }
+            if (strlen($chunk) == $chunkSize) {
+                $this->messageBuffer = substr($this->messageBuffer, $chunkSize + strlen($chunkSizeHex) + 4);
 
-    public function read()
-    {
-        return $this->reader->read();
-    }
+                $out = [ $chunk ];
 
-    public function captureBufferRead()
-    {
-       while (null !== $chunk = yield $this->read()) {
-           echo ">>>>>>>>>{$chunk}<<<<<<<<<<<<<";
-       }
+                foreach ((array)$this->parseBuffer() as $c) {
+                    $out[] = $c;
+                }
 
-       return $chunk;
+                return $out;
 
-        \Amp\asyncCall(function (\Amp\Socket\ServerSocket $socket) {
-            echo "Async fired";
-            while (null !== $chunk = yield $socket->read()) {
-                echo ">>>>>>>>>{$chunk}<<<<<<<<<<<<<";
-                //$this->messageBuffer .= $chunk;
-                //$this->parseBuffer();
+                //dd(array_merge([$chunk], (array)$this->parseBuffer() ));
             }
-
-            return $chunk;
-        }, $this->reader);
-
-
-
-       return;
-
-        return;
-/*
-        \Amp\asyncCall(function (\Amp\Socket\ServerSocket $socket) {
-            while (null !== $chunk = yield $socket->read()) {
-                echo ">>>>>>>>>{$chunk}<<<<<<<<<<<<<";
-                //$this->messageBuffer .= $chunk;
-                //$this->parseBuffer();
-            }
-
-            echo "ttttttt{$chunk}ttttttt";
-        }, $this->reader);
- */
-        //echo "tsetiiiiiiiiiiiiiiiii";
-
-        /*
-        echo "test";
-        while (null !== $chunk = yield $this->reader->read()) {
-            echo ">>>>>>>>>{$chunk}<<<<<<<<<<<<<";
         }
 
-        echo "test";
-        /*
 
-        return;
-        while (null !== $chunk = yield $socket->read()) {
-            echo "############{$chunk}############";
-            return;
-            $this->messageBuffer .= $chunk;
-            $this->parseBuffer();
-        }
-
-        return;
-        // first asyncCall
-        \Amp\asyncCall(function (\Amp\Socket\ServerSocket $socket) {
-
-            while (null !== $chunk = yield $socket->read()) {
-                echo $chunk;
-                exit;
-                $this->messageBuffer .= $chunk;
-                $this->parseBuffer();
-            }
-
-        }, $this->reader);
-        */
+        return [];
     }
 
-    public function abort()
+    public static function getRandomID()
     {
-        $body = "Thank you for using ".config('app.name');
-        $bodyLength = \strlen($body);
-        $this->reader->end("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: {$bodyLength}\r\n\r\n{$body}");
+    
     }
-
 }

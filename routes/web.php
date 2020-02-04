@@ -14,3 +14,6 @@
 Route::get('/', function () {
     return view('tutorial');
 });
+
+Route::get('/new-session', 'SessionController@create');
+Route::get('/terminal', 'SessionController@terminal');

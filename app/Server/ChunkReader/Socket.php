@@ -15,7 +15,6 @@ class Socket extends ChunkReader
     {
         $readListenerClosure = $this->readListenerClosure;
         \Amp\asyncCall(function (\Amp\Socket\ServerSocket $socket) use ($readListenerClosure) {
-            echo "Async fired";
             while (null !== $chunk = yield $socket->read()) {
                 $readListenerClosure($chunk);
             }

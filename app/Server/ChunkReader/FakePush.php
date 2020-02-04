@@ -12,9 +12,5 @@ class FakePush extends ChunkReader
     }
 
     public function end()
-    {
-        $body = "Thx I guess...";
-        $bodyLength = \strlen($body);
-        $this->socket->end("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: {$bodyLength}\r\n\r\n{$body}");
-    }
+    {}
 }

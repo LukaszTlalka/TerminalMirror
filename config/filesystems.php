@@ -48,6 +48,11 @@ return [
             'root' => storage_path('app'),
         ],
 
+        'console-sessions' => [
+            'driver' => 'local',
+            'root' => storage_path('console-sessions'),
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -7,4 +7,29 @@ html, body, .full-page { height: 100%; width: 100%; margin: 0; }
         background: url("/images/texture-dark.png");
 }
 
-@import 'console-tutorial'
+.full-height {
+    display:block;
+    height:calc(100% - 56px);
+}
+
+@import 'console-tutorial';
+@import 'terminal';
+
+
+/*
+ *  STYLE 1
+ */
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background-color: #11171a;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+}
+

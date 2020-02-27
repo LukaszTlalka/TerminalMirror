@@ -11,4 +11,3 @@ Servers list:
 ## Debug Amphp httpd server
 
 php artisan bash:random | bash | curl -H "Transfer-Encoding: chunked"  -H "Content-Type: application/json"  -X POST -T - http://localhost:3005/ -s
-

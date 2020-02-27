@@ -10,7 +10,10 @@
     "require": {
         "php": "^7.2",
         "amphp/http-server": "^1.1",
+        "amphp/http-server-router": "^1.0",
+        "amphp/websocket-client": "^0.2.4",
         "amphp/websocket-server": "^1.0",
+        "cboden/ratchet": "^0.4.2",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^6.2",
         "laravel/tinker": "^1.0",

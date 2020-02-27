@@ -39,20 +39,46 @@ export default {
         term.writeln('');
         term.prompt()
 
-        term.onKey(e => {
-            const printable = !e.domEvent.altKey && !e.domEvent.altGraphKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
+        let conn = new WebSocket(WS.host + ":" + WS.port + "/console-share?client=" + WS.client);
 
-            if (e.domEvent.keyCode === 13) {
+        conn.onmessage = (e) => {
+            console.log("Received: " + e.data);
+            let msg = JSON.parse(e.data);
+
+            if (msg.c == 8) {
+                term.write('\b \b');
+            } else if (msg.c === 13) {
                 term.prompt()
-            } else if (e.domEvent.keyCode === 8) {
-                // Do not delete the prompt
-                if (term._core.buffer.x > 2) {
-                    term.write('\b \b');
-                }
-            } else if (printable) {
-                term.write(e.key);
+            } else {
+                term.write(msg.k)
             }
-        });
+        };
+
+        conn.onopen = (e) => {
+            term.onKey(e => {
+
+                var printable = !e.domEvent.altKey && !e.domEvent.altGraphKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
+                var msg = JSON.stringify({
+                    c: e.domEvent.keyCode,
+                    k: e.key
+                });
+                console.log("Sending", msg);
+                conn.send(msg);
+
+                return;
+
+                if (e.domEvent.keyCode === 13) {
+                    term.prompt()
+                } else if (e.domEvent.keyCode === 8) {
+                    // Do not delete the prompt
+                    if (term._core.buffer.x > 2) {
+                        term.write('\b \b');
+                    }
+                } else if (printable) {
+                    term.write(e.key);
+                }
+            });
+        };
     },
     data: function () {
         return {

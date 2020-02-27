@@ -24,6 +24,15 @@ class SessionController extends Controller
 
     public function terminal()
     {
-        return view('session.terminal');
+        $websocket = [
+            'host' => strtr(config('app.url'),[
+                'https://' => 'wss://',
+                'http://' => 'ws://',
+            ]),
+            'port' => env('WEBSOCKET_SERVER_PORT'),
+            'client' => 'testing',
+        ];
+
+        return view('session.terminal', compact('websocket'));
     }
 }

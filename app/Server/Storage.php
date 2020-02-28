@@ -11,6 +11,9 @@ class Storage
      */
     private $reference;
 
+    const FILE_TYPE_INPUT = 1;
+    const FILE_TYPE_OUTPUT = 2;
+
     /**
      * $reference - unique storage reference
      */
@@ -21,11 +24,13 @@ class Storage
         $this->disk = self::getDisk('console-sessions');
 
         $this->inputFileName = "{$this->reference}.input";
+        $this->outputFileName = "{$this->reference}.output";
 
         $this->dataPushed = false;
 
         if ($clearExistingStorage) {
             $this->disk->delete($this->inputFileName);
+            $this->disk->delete($this->outputFileName);
         }
     }
 
@@ -34,14 +39,34 @@ class Storage
         return FileStorage::disk('console-sessions');
     }
 
-    public function inputGet()
+    public function get($fileType)
     {
-        return $this->disk->get($this->inputFileName);
+        return $this->disk->get($fileType == Storage::FILE_TYPE_INPUT ? $this->inputFileName : $this->outputFileName);
     }
 
-    public function inputAppend($data)
+    /*
+     * Get last modification hash
+     */
+    public function getModHash($fileType)
     {
-        $this->disk->append($this->inputFileName, $data);
+        $file = $fileType == Storage::FILE_TYPE_INPUT ? $this->inputFileName : $this->outputFileName;
+        $filePath = $this->disk->path($file);
+
+        clearstatcache();
+        return filesize($filePath).".".filemtime($filePath);
+    }
+
+    /**
+     * Push data to the storage
+     *
+     * @return string - file modification hash used for checking if storage has been modified
+     */
+    public function append($fileType, $data)
+    {
+        $file = $fileType == Storage::FILE_TYPE_INPUT ? $this->inputFileName : $this->outputFileName;
+        $this->disk->append($file, $data);
+
+        return $this->getModHash($fileType);
     }
 
     public function referenceExists()

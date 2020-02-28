@@ -68,11 +68,11 @@ class Client
                 
                 // check if input has been initialized
                 // so that we don't have two users pushing data to the same input
-                if (trim($this->storage->inputGet()) != "initialized") {
+                if (trim($this->storage->get(Storage::FILE_TYPE_INPUT)) != "initialized") {
                     throw new \Exception("Already taken or input not initialized.");
                 }
 
-                $this->storage->inputAppend("curl-started");
+                $this->storage->append(Storage::FILE_TYPE_INPUT, "curl-started");
             } catch (\Exception $e) {
 
                 if (config('app.env') != 'production') {
@@ -90,7 +90,7 @@ class Client
                 'microtime' => microtime(true)
             ]);
 
-            $this->storage->inputAppend($chunkString);
+            $this->storage->append(Storage::FILE_TYPE_INPUT, $chunkString);
         }
     }
 

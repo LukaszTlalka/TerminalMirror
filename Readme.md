@@ -8,6 +8,12 @@ Servers list:
 - terminal websocket - used on the page to exchange information with the curl proxy
 
 
-## Debug Amphp httpd server
+## Testing  
+
+### Websocket testing  
+
+Navigate to /terminal, make sure that `php artisan server:terminal-websocket` is running in the background.  
+
+## Debug Amphp httpd server  
 
 php artisan bash:random | bash | curl -H "Transfer-Encoding: chunked"  -H "Content-Type: application/json"  -X POST -T - http://localhost:3005/ -s

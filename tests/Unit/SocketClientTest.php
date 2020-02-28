@@ -11,19 +11,29 @@ use App\SocketClient;
 
 class SocketClientTest extends TestCase
 {
+    public function testFileMod()
+    {
+        $storage = new \App\Server\Storage("test", true);
+
+        $lastModHash = $storage->append(\App\Server\Storage::FILE_TYPE_INPUT, "initialized");
+        $this->assertTrue($storage->getModHash(\App\Server\Storage::FILE_TYPE_INPUT) == $lastModHash);
+
+        $storage->append(\App\Server\Storage::FILE_TYPE_INPUT, "modified");
+
+        $this->assertFalse($storage->getModHash(\App\Server\Storage::FILE_TYPE_INPUT) == $lastModHash);
+    }
+
     /**
      * A basic unit test example.
      *
      * @return void
      */
-    public function testExample()
+    public function testSocketMessage()
     {
-        $this->assertTrue(true);
-
         $reference = "01adcd4ea37412bf0af84695611622a7";
 
         $storage = new \App\Server\Storage($reference, true);
-        $storage->inputAppend("initialized");
+        $storage->append(\App\Server\Storage::FILE_TYPE_INPUT, "initialized");
 
         $reader = new \App\Server\ChunkReader\FakePush();
         $client = new \App\Server\Client($reader);
@@ -40,9 +50,10 @@ class SocketClientTest extends TestCase
             $reader->pushMessage($chunk);
         }
 
-        $data = explode("\n", $storage->inputGet());
+        $data = explode("\n", $storage->get(\App\Server\Storage::FILE_TYPE_INPUT));
 
         $this->assertEquals($data[0], "initialized");
         $this->assertEquals($data[1], "curl-started");
     }
+
 }

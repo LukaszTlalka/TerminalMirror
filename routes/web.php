@@ -17,3 +17,8 @@ Route::get('/', function () {
 
 Route::get('/new-session', 'SessionController@create');
 Route::get('/terminal', 'SessionController@terminal');
+
+if (env('APP_ENV') == 'local') {
+    Route::get('/debug/files', 'DebugController@files');
+    Route::get('/debug/files-data', 'DebugController@filesData');
+}

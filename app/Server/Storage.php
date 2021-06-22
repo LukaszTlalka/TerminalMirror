@@ -36,7 +36,7 @@ class Storage
 
     private static function getDisk($key)
     {
-        return FileStorage::disk('console-sessions');
+        return FileStorage::disk($key);
     }
 
     public function get($fileType)
@@ -53,7 +53,9 @@ class Storage
         $filePath = $this->disk->path($file);
 
         clearstatcache();
-        return filesize($filePath).".".filemtime($filePath);
+
+
+        return !file_exists($filePath) ? null : filesize($filePath).".".filemtime($filePath);
     }
 
     /**

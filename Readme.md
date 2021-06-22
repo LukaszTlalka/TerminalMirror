@@ -2,18 +2,53 @@
 
 Laravel based system that allows for easy console sharing over web using nothing but curl.
 
-Servers list:
-- laravel main - port 80 -> serve main page
-- app server - env('APP_SERVER_PORT') -> curl command line handling. Used for storring output of the commands.
-- terminal websocket - used on the page to exchange information with the curl proxy
+### Operation Principle
+
+The basic operation principle is quite simple:
+
+1) Read input from websocket
+2) Pipe the result into bash command
+3) Write the output to websocket
+
+[input websocket curl ... ] | bash | output websocket curl ...
+
+
+
+Command example:
+
+ws://localhost:3005/console-share?inputClient=5b24132605be249f2a50286e24ab0764
+
+
+ws://localhost:3005/console-share?inputClient=5b24132605be249f2a50286e24ab0764
+
+
+```bash
+curl -H "Transfer-Encoding: chunked"  -H "Content-Type: application/json"  -X POST -T - http://localhost:3005/console-share?inputClient=5b24132605be249f2a50286e24ab0764 -s | \
+bash | \
+curl -H "Transfer-Encoding: chunked"  -H "Content-Type: application/json"  -X POST -T - http://localhost:3005/console-share?outputClient=5b24132605be249f2a50286e24ab0764 -s
+```
+
+
+
 
 
 ## Testing  
 
-### Websocket testing  
+- configure .env WEBSOCKET_SERVER_PORT and run the server `php artisan server:terminal-websocket debug`
 
-Navigate to /terminal, make sure that `php artisan server:terminal-websocket` is running in the background.  
+- Create session by navigating to:  
+
+http://host:port/new-session
+
+- Open input client connection: 
+
+ws://localhost:[WEBSOCKET_SERVER_PORT]/console-share?inputClient=[md5 from the step 2]
+
+
 
 ## Debug Amphp httpd server  
 
 php artisan bash:random | bash | curl -H "Transfer-Encoding: chunked"  -H "Content-Type: application/json"  -X POST -T - http://localhost:3005/ -s
+
+
+

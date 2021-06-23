@@ -17,6 +17,9 @@ use App\SocketClient;
 use Amp\Socket\ServerSocket;
 
 
+/**
+ * NOT IN USE
+ */
 class CurlInHttpServer extends Command
 {
     /**
@@ -24,7 +27,7 @@ class CurlInHttpServer extends Command
      *
      * @var string
      */
-    protected $signature = 'server:curl-in';
+    protected $signature = 'server:curl-in {debug?}';
 
     /**
      * The console command description.
@@ -45,16 +48,33 @@ class CurlInHttpServer extends Command
 
     private function startServer()
     {
-        \Amp\Loop::run(function () {
+        $command = $this;
+        $debug = $this->argument('debug') ? true : false;
+
+        $logger = new class($command, $debug) {
+            public function __construct($command, $debug) {
+                    $this->command = $command;
+                    $this->debug = $debug;
+            }
+
+            public function __call($method, $params) {
+                if ($this->debug) {
+                    $this->command->$method(...$params);
+                }
+            }
+        };
+
+
+        \Amp\Loop::run(function () use ($logger) {
             $server = \Amp\Socket\listen("0.0.0.0:".env("APP_SERVER_PORT"));
 
             while ($socket = yield $server->accept()) {
                 $reader = new \App\Server\ChunkReader\Socket($socket);
-                $client = new \App\Server\Client($reader);
+                $client = new \App\Server\Client($reader, $logger);
                 //new SocketClient($socket);
 
                 \Amp\Loop::delay(3000, function() use ($client) {
-                    $client->end();
+                    //$client->end();
                 });
             }
         });

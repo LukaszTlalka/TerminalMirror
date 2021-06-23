@@ -14,13 +14,19 @@ class SocketClientTest extends TestCase
     public function testFileMod()
     {
         $storage = new \App\Server\Storage("test", true);
+        /*
+            $storage->append('input', 'test');
+            $storage->append('input', 'test2');
+            $storage->append('input', 'test3');
+            print_r($storage->get('input',3));
+        */
 
-        $lastModHash = $storage->append(\App\Server\Storage::FILE_TYPE_INPUT, "initialized");
-        $this->assertTrue($storage->getModHash(\App\Server\Storage::FILE_TYPE_INPUT) == $lastModHash);
+        $lastModHash = $storage->append('FILE_TYPE_INPUT', "initialized");
+        $this->assertTrue($storage->getModHash('FILE_TYPE_INPUT') == $lastModHash);
 
-        $storage->append(\App\Server\Storage::FILE_TYPE_INPUT, "modified");
+        $storage->append('FILE_TYPE_INPUT', "modified");
 
-        $this->assertFalse($storage->getModHash(\App\Server\Storage::FILE_TYPE_INPUT) == $lastModHash);
+        $this->assertFalse($storage->getModHash('FILE_TYPE_INPUT') == $lastModHash);
     }
 
     /**
@@ -33,7 +39,7 @@ class SocketClientTest extends TestCase
         $reference = "01adcd4ea37412bf0af84695611622a7";
 
         $storage = new \App\Server\Storage($reference, true);
-        $storage->append(\App\Server\Storage::FILE_TYPE_INPUT, "initialized");
+        $storage->append('FILE_TYPE_INPUT', "initialized");
 
         $reader = new \App\Server\ChunkReader\FakePush();
         $client = new \App\Server\Client($reader);
@@ -50,7 +56,7 @@ class SocketClientTest extends TestCase
             $reader->pushMessage($chunk);
         }
 
-        $data = explode("\n", $storage->get(\App\Server\Storage::FILE_TYPE_INPUT));
+        $data = explode("\n", $storage->get('FILE_TYPE_INPUT'));
 
         $this->assertEquals($data[0], "initialized");
         $this->assertEquals($data[1], "curl-started");

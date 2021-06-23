@@ -38,9 +38,11 @@ class RandomSafeBashCommands extends Command
     public function handle()
     {
         echo "ls\n";
-        sleep(1);
+        sleep(3);
         echo "whoami\n";
-        sleep(1);
+        sleep(3);
+        echo "pwd\n";
+        sleep(3);
         echo "pwd\n";
     }
 }

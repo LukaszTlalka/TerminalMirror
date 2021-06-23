@@ -4,58 +4,83 @@ namespace App\Server;
 
 use Storage as FileStorage;
 
+use Cache;
+
 class Storage
 {
     /**
-     * @var unique storage reference (usually md5 hash)
+     * @var unique storage reference (md5 hash)
      */
     private $reference;
 
-    const FILE_TYPE_INPUT = 1;
-    const FILE_TYPE_OUTPUT = 2;
-
     /**
-     * $reference - unique storage reference
+     * $reference - unique storage md5 reference
      */
     public function __construct($reference, $clearExistingStorage = false)
     {
         $this->reference = $reference;
+        $this->cacheTimeout = config('cache.stores.terminal.timeout');
+        $this->cache = Cache::store('terminal');
 
-        $this->disk = self::getDisk('console-sessions');
+        if ($clearExistingStorage) {
+            $this->cache->forget($this->reference);
+        }
 
+        /*
         $this->inputFileName = "{$this->reference}.input";
         $this->outputFileName = "{$this->reference}.output";
 
-        $this->dataPushed = false;
 
         if ($clearExistingStorage) {
             $this->disk->delete($this->inputFileName);
             $this->disk->delete($this->outputFileName);
         }
+        */
     }
 
-    private static function getDisk($key)
+    private function getModFile()
     {
-        return FileStorage::disk($key);
+        if (!is_array($contents = $this->cache->get($this->reference))) {
+            $this->cache->set($this->reference, [], $this->cacheTimeout);
+            return [];
+        }
+
+        return $contents;
     }
 
-    public function get($fileType)
+    /**
+     * Get stored data
+     */
+    public function get($fileType, $sinceID = 1)
     {
-        return $this->disk->get($fileType == Storage::FILE_TYPE_INPUT ? $this->inputFileName : $this->outputFileName);
+        $to = $this->getModID($fileType);
+
+        $out = [];
+        for ($i = $sinceID; $i <= $to;$i++) {
+            $key = $this->reference . $fileType . $i;
+
+            if ($cacheData = $this->cache->get($key, null)) {
+                $out[$i] = ['id' => $i, 'data' => $cacheData];
+            }
+        }
+
+        return $out;
+    }
+
+    public function getModHash($fileType) {
+        return $this->getModID($fileType);
     }
 
     /*
-     * Get last modification hash
+     * Get last modification id
      */
-    public function getModHash($fileType)
+    public function getModID($fileType)
     {
-        $file = $fileType == Storage::FILE_TYPE_INPUT ? $this->inputFileName : $this->outputFileName;
-        $filePath = $this->disk->path($file);
+        $info = $this->getModFile();
 
-        clearstatcache();
+        $modKey = 'mod_'.$fileType;
 
-
-        return !file_exists($filePath) ? null : filesize($filePath).".".filemtime($filePath);
+        return $info[$modKey] ?? -1;
     }
 
     /**
@@ -65,14 +90,22 @@ class Storage
      */
     public function append($fileType, $data)
     {
-        $file = $fileType == Storage::FILE_TYPE_INPUT ? $this->inputFileName : $this->outputFileName;
-        $this->disk->append($file, $data);
+        $modKey = 'mod_'.$fileType;
 
-        return $this->getModHash($fileType);
+        $info = $this->getModFile();
+        @$info[$modKey]++;
+
+        $this->cache->set($this->reference, $info, $this->cacheTimeout);
+
+        $key = $this->reference . $fileType . $info[$modKey];
+
+        $this->cache->set($key, $data, $this->cacheTimeout);
+
+        return $info[$modKey];
     }
 
     public function referenceExists()
     {
-        return $this->disk->exists($this->inputFileName);
+        return (bool)$this->cache->get($this->reference, false);
     }
 }

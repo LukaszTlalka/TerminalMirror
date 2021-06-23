@@ -47,6 +47,12 @@ return [
             'connection' => null,
         ],
 
+        'terminal' => [
+            'driver' => 'file',
+            'timeout' => 60*60*8,
+            'path' => storage_path('framework/cache/data'),
+        ],
+
         'file' => [
             'driver' => 'file',
             'path' => storage_path('framework/cache/data'),

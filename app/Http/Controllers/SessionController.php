@@ -15,7 +15,7 @@ class SessionController extends Controller
             $storage = new ServerStorage($ref);
         } while ( $storage->referenceExists() );
 
-        $storage->append(ServerStorage::FILE_TYPE_INPUT, "initialized\n");
+        $storage->append('log', "initialized");
 
         $command = \App\Server\Command::getCommand($ref);
 

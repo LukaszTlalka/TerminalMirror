@@ -20,6 +20,11 @@ class Client
     private $userAuth = null;
 
     /**
+     * @var string  inputClient | outputClient
+     */
+    private $clientType = '';
+
+    /**
      * @var do we need to initialize storage
      */
      private $storage = null;
@@ -32,19 +37,23 @@ class Client
     /**
      * @param $reader - reader provides the data
      */
-    public function __construct(\App\Server\ChunkReader $reader)
+    public function __construct(\App\Server\ChunkReader $reader, $logger)
     {
         $this->reader = $reader;
+        $this->logger = $logger;
 
         $client = $this;
 
-        $reader->registerReadListener(function($chunk) use ($client) {
+        $reader->registerReadListener(function($chunk) use ($client, $logger) {
+            $logger->info('Buffer message received: ' . substr(str_replace(["\n", "\r"], ["\\n", "\\r"], $chunk), 0, 50));
             $client->messageBuffer .= $chunk;
 
             //file_put_contents("/tmp/chunks-dd", $chunk, FILE_APPEND);
 
             if ( count($chunks = $client->parseBuffer()) > 0 ) {
-                $this->logBufferChunk($chunks);
+                if ($this->clientType == 'outputClient') {
+                    $this->logBufferChunk($chunks);
+                }
             }
         });
 
@@ -56,7 +65,7 @@ class Client
      */
     public function logBufferChunk($chunks)
     {
-        list($userID, $pass) = explode(":", $this->userAuth);
+        $userID = $this->userAuth;
 
         if (!preg_match('/^[a-f0-9]{32}$/', $userID)) {
             $this->end();
@@ -65,15 +74,18 @@ class Client
         if (!$this->storage) {
             try {
                 $this->storage = new Storage($userID, false);
-                
+
                 // check if input has been initialized
                 // so that we don't have two users pushing data to the same input
-                if (trim($this->storage->get(Storage::FILE_TYPE_INPUT)) != "initialized") {
-                    throw new \Exception("Already taken or input not initialized.");
+                
+                $log = $this->storage->get('log');
+                if (count($log) != 1) {
+                    // TODO: uncomment
+                    //throw new \Exception("Already taken or input not initialized.");
                 }
 
-                $this->storage->append(Storage::FILE_TYPE_INPUT, "curl-started");
-            } catch (\Exception $e) {
+                $this->storage->append('log', "curl-started");
+                } catch (\Exception $e) {
 
                 if (config('app.env') != 'production') {
                     throw $e;
@@ -90,12 +102,19 @@ class Client
                 'microtime' => microtime(true)
             ]);
 
-            $this->storage->append(Storage::FILE_TYPE_INPUT, $chunkString);
+            $this->logger->info('Appending storage for FILE_TYPE_OUTPUT');
+            $this->storage->append('FILE_TYPE_OUTPUT', $chunkString);
         }
+
     }
 
+    public function abort()
+    {
+        return $this->end();
+    }
     public function end()
     {
+        $this->logger->info('Client disconnected: ' . ($this->userAuth ?? ''));
         return $this->reader->end();
     }
 
@@ -110,12 +129,21 @@ class Client
 
                 $header = substr($this->messageBuffer, 0, $expectPos + strlen($expect100Continue) + 2);
 
-                if (!preg_match("/Authorization: Basic (.*?)\r\n/", $header, $clientInfo)) {
+                if (!preg_match("/Authorization: Bearer (.*?)\r\n/", $header, $clientInfo)) {
                     $this->abort();
                     return [];
                 }
 
-                $this->userAuth = base64_decode($clientInfo[1]);
+                $this->userAuth = $clientInfo[1];
+
+                if (!preg_match("#POST /(.)#i", $header, $uriInfo)) {
+                    $this->abort();
+                    return [];
+                }
+
+                $this->clientType = $uriInfo[1] == 'o' ? 'outputClient' : 'inputClient';
+
+                $this->logger->info('Client connected: ' . $this->userAuth . " type: " . $this->clientType);
 
                 $this->messageBuffer = substr($this->messageBuffer, $expectPos + strlen($expect100Continue) + 2);
                 $this->expect100Reached = true;

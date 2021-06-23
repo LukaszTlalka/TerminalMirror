@@ -10,6 +10,7 @@ class Command
             'bash | ' .
             'curl -H "Transfer-Encoding: chunked" ' .
             '-H "Authorization: Bearer '.$ref.'"' .
-            ' -X POST -T - '.env('APP_URL').':'.env("WEBSOCKET_SERVER_PORT").'/console-share?inputClient='.$ref.' -s';
+            //' -X POST -T - '.env('APP_URL').':'.env("APP_SERVER_PORT").'/console-share?inputClient='.$ref.' -s';
+            ' -X POST -T - '.env('APP_URL').':'.env("APP_SERVER_PORT").'/outputClient';
     }
 }

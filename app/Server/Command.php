@@ -6,7 +6,9 @@ class Command
 {
     public static function getCommand($ref)
     {
-        return 'php artisan bash:random | ' .
+        return 'curl --http1.1 -s -N ' .
+            '-H "Authorization: Bearer '.$ref.'" ' .
+            env('APP_URL').':'.env("APP_SERVER_PORT").'/outputClient | ' .
             'bash | ' .
             'curl -H "Transfer-Encoding: chunked" ' .
             '-H "Authorization: Bearer '.$ref.'"' .

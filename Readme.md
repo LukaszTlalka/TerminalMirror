@@ -10,21 +10,12 @@ The basic operation principle is quite simple:
 2) Pipe the result into bash command
 3) Write the output to websocket
 
-[input websocket curl ... ] | bash | output websocket curl ...
-
-
+[inputClient curl ] | bash | outputClient curl ...
 
 Command example:
 
-ws://localhost:3005/console-share?inputClient=5b24132605be249f2a50286e24ab0764
-
-ws://localhost:3005/console-share?inputClient=5b24132605be249f2a50286e24ab0764
-
 
 ```bash
-curl -H "Transfer-Encoding: chunked"  -H "Content-Type: application/json"  -X POST -T - http://localhost:3005/console-share?inputClient=5b24132605be249f2a50286e24ab0764 -s | \
-bash | \
-curl -H "Transfer-Encoding: chunked"  -H "Content-Type: application/json"  -X POST -T - http://localhost:3005/console-share?outputClient=5b24132605be249f2a50286e24ab0764 -s
 ```
 
 ## Testing  

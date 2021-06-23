@@ -65,19 +65,29 @@ class CurlInHttpServer extends Command
         };
 
 
+        $clients = [];
+
+        /*
+            \Amp\Loop::repeat(1000, function() {
+                echo "aaa";
+            });
+         */
+
+
         \Amp\Loop::run(function () use ($logger) {
-            $server = \Amp\Socket\listen("0.0.0.0:".env("APP_SERVER_PORT"));
+
+            $hostPort = "0.0.0.0:".env("APP_SERVER_PORT");
+
+            $server = \Amp\Socket\listen($hostPort);
+
+            $logger->info('Starting server on: ' . $hostPort);
 
             while ($socket = yield $server->accept()) {
                 $reader = new \App\Server\ChunkReader\Socket($socket);
                 $client = new \App\Server\Client($reader, $logger);
-                //new SocketClient($socket);
-
-                \Amp\Loop::delay(3000, function() use ($client) {
-                    //$client->end();
-                });
             }
         });
+
     }
 
     /**

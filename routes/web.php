@@ -11,6 +11,16 @@
 |
 */
 
+Route::get('/commands', function () {
+    for ($i = 0; $i < 3; $i++) {
+        echo "ls\n";
+        sleep(1);
+        flush();
+        ob_flush();
+    }
+});
+
+
 Route::get('/', function () {
     return view('tutorial');
 });

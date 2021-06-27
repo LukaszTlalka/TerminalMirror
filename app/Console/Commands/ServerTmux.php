@@ -47,10 +47,12 @@ class ServerTmux extends Command
             "split-window -h 'echo \"Watch outputClient: \" && php artisan storage:watcher 2283ca20ac84d62bf52819474a1d5f00 outputClient' \; " .
             "split-window 'php artisan serve --host=0.0.0.0 --port=".$port."' \; " .
             "split-window 'echo \"Push to inputClient: \" && php artisan storage:write-constant 2283ca20ac84d62bf52819474a1d5f00 inputClient' \; " .
-            "split-window 'sleep 3 && curl --http1.1 -s -N -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" http://localhost:3005/inputClient | script -q | curl -H \"Transfer-Encoding: chunked\" -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" -X POST -T - http://localhost:3005/outputClient' \; " .
+            "split-window 'sleep 5 && curl --http1.1 -s -N -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" http://localhost:3005/inputClient | script -q | curl -H \"Transfer-Encoding: chunked\" -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" -X POST -T - http://localhost:3005/outputClient' \; " .
             "detach-client";
 
         $this->info($cmd);
+        
+        $this->info("Navigate to: http://localhost:".$port."/terminal/2283ca20ac84d62bf52819474a1d5f00");
 
         shell_exec($cmd);
     }

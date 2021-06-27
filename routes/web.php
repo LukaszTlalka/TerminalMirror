@@ -20,13 +20,13 @@ Route::get('/commands', function () {
     }
 });
 
-
 Route::get('/', function () {
     return view('tutorial');
 });
 
 Route::get('/new-session', 'SessionController@create');
-Route::get('/terminal', 'SessionController@terminal');
+Route::get('/terminal/{hash}', 'SessionController@terminal')
+    ->where(['hash' => '([a-f0-9]{32})', 'name' => '[a-z]+']);;
 
 if (env('APP_ENV') == 'local') {
     Route::get('/debug/files', 'DebugController@files');

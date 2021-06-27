@@ -22,7 +22,7 @@ class SessionController extends Controller
         return view('session.new', compact('command'));
     }
 
-    public function terminal()
+    public function terminal(string $hash)
     {
         $websocket = [
             'host' => strtr(config('app.url'),[
@@ -30,7 +30,7 @@ class SessionController extends Controller
                 'http://' => 'ws://',
             ]),
             'port' => env('WEBSOCKET_SERVER_PORT'),
-            'client' => 'testing',
+            'client' => $hash,
         ];
 
         return view('session.terminal', compact('websocket'));

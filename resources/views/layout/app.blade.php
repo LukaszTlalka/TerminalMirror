@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Terminal Console easy sharing - ConsoleShare.com</title>
+        <title>Terminal Console easy sharing - TerminalMirror.com</title>
         <link rel="stylesheet" href="{{ mix('css/app.css') }}">
         <link rel="stylesheet" href="{{ mix('css/xterm.css') }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css">
@@ -31,7 +31,7 @@
     <body>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
             <div class='container'>
-                <a class="navbar-brand" href="/"><b><i class="fas fa-terminal"></i></b> ConsoleShare</a>
+                <a class="navbar-brand" href="/"><b><i class="fas fa-terminal"></i></b> TerminalMirror</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>

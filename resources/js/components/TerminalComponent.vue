@@ -28,10 +28,10 @@ export default {
         };
 
         term.open(document.getElementById('terminal'));
-        term.writeln('Welcome to ConsoleShare.com terminal emulator');
-        term.writeln('* Documentation https://consoleshare.com/documentation');
-        term.writeln('* Usage https://consoleshare.com/usage');
-        term.writeln('* Operation https://consoleshare.com/operation');
+        term.writeln('Welcome to TerminalMirror.com terminal emulator');
+        term.writeln('* Documentation https://terminalmirror.com/documentation');
+        term.writeln('* Usage https://terminalmirror.com/usage');
+        term.writeln('* Operation https://terminalmirror.com/operation');
 
         term.writeln('');
         term.writeln('You are currently connected to the live terminal.')

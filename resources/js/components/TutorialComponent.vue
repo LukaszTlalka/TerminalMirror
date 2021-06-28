@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="main-message animated fadeIn" v-if="display.mainMessage.show">
-            <b><i class="fas fa-terminal"></i> ConsoleShare</b>
+            <b><i class="fas fa-terminal"></i> TerminalMirror</b>
             <div id='motive' v-if="display.mainMessage.showMotive" class="animated fadeIn slow">
                 <h1>Helps you share<br>access to terminals</h1>
                 <div><button v-on:click="startTutorial" class="btn btn-info">Watch Preview?</button> or <a href="/new-session" class="btn btn-info">Start a new session</a></div>

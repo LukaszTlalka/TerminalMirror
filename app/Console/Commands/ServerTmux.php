@@ -39,15 +39,17 @@ class ServerTmux extends Command
     {
         $port = $this->argument('port');
 
+        $curlPort = env('APP_SERVER_PORT');
+
         $this->call('cache:clear');
 
         $cmd =  "tmux " .
             "new-session 'echo \"curl-in server: \" && php artisan server:curl-in debug' \; " .
-            "new-session 'echo \"WebSocket server: \" && php artisan server:terminal debug' \; " .
+            "split-window 'echo \"WebSocket server: \" && php artisan server:terminal debug' \; " .
             "split-window -h 'echo \"Watch outputClient: \" && php artisan storage:watcher 2283ca20ac84d62bf52819474a1d5f00 outputClient' \; " .
             "split-window 'php artisan serve --host=0.0.0.0 --port=".$port."' \; " .
             "split-window 'echo \"Push to inputClient: \" && php artisan storage:write-constant 2283ca20ac84d62bf52819474a1d5f00 inputClient' \; " .
-            "split-window 'sleep 5 && curl --http1.1 -s -N -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" http://localhost:3005/inputClient | script -q | curl -H \"Transfer-Encoding: chunked\" -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" -X POST -T - http://localhost:3005/outputClient' \; " .
+            "split-window 'echo \"Terminal share command\" && sleep 5 && curl --http1.1 -s -N -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" http://localhost:{$curlPort}/inputClient | script -q | curl -H \"Transfer-Encoding: chunked\" -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" -X POST -T - http://localhost:{$curlPort}/outputClient' \; " .
             "detach-client";
 
         $this->info($cmd);

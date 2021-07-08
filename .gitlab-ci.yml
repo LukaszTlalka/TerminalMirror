@@ -3,7 +3,8 @@ stages:
   - deploy
 
 ####################################################
-## TerminalMirror Live
+## terminalmirror build live container
+
 build-docker-image:
   stage: build-containers
   only:
@@ -20,5 +21,19 @@ build-docker-image:
   tags:
     - kubernetes-runner
 
-## TerminalMirror Live
+## terminalmirror build live container
+####################################################
+
+####################################################
+## deploy live container
+all.dev-kube.leafletcomms.co.uk-deployment:
+  stage: deploy
+  only:
+    - pre-live
+  image: bitnami/kubectl:1.16.2
+  script:
+    - cat .kubernetes/terminal-mirror-deployment.yaml | sed "s/%DATE%/$(date '+%Y-%m-%d')/g" | sed "s/\$CI_COMMIT_SHORT_SHA/${CI_COMMIT_SHORT_SHA/}/g" | kubectl --kubeconfig $KUBE_CONFIG apply -f -
+  tags:
+    - kubernetes-runner
+## deploy live container
 ####################################################

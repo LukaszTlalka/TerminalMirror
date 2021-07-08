@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: terminal-mirror-com
+  annotations:
+    kubernetes.io/change-cause: "%DATE% sha: $CI_COMMIT_SHORT_SHA"
+  labels:
+    app: terminal-mirror-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: terminal-mirror-com
+  template:
+    metadata:
+      name: terminal-mirror-com
+      labels:
+        app: terminal-mirror-com
+    spec:
+      imagePullSecrets:
+        - name: core.harbor.kubernetes.netblink.pl
+      containers:
+      - name: apache-terminal-mirror-com
+        image: core.harbor.kubernetes.netblink.pl/terminal-mirror/base:master
+        env:
+        - name: APP_URL
+          value: "https://terminalmirror.com/"
+        - name: APP_ENV
+          value: production
+        - name: CI_COMMIT_SHORT_SHA
+          value: "$CI_COMMIT_SHORT_SHA"
+
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: terminal-mirror-com-service
+spec:
+  type: ClusterIP
+  selector:
+    app: terminal-mirror-com
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+

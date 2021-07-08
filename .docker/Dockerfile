@@ -56,6 +56,22 @@ RUN a2enmod rewrite
 
 RUN apt clean
 
+ADD ./ /share
+
+RUN rm -rf /var/www/html
+RUN ln -s /share/public /var/www/html
+RUN touch /share/storage/logs/laravel.log
+
+RUN chmod 777 /share/storage -R
+RUN chmod 777 /share/bootstrap/cache/ -R
+
+RUN cd /share/ && composer install
+RUN cd /share/ && npm install && npm run production
+
+
+RUN echo "* * * * * bash -l -c '/usr/local/bin/php /share/artisan schedule:run >> /tmp/cron-log 2>&1'" > /var/spool/cron/crontabs/root
+RUN crontab /var/spool/cron/crontabs/root
+
 ENTRYPOINT ["bash", "-c"]
 CMD ["/usr/local/bin/apache2-foreground"]
 

@@ -85,8 +85,8 @@ class Client
     public function logBufferChunk($chunks)
     {
         foreach ($chunks as $chunk) {
-            $this->logger->info('Appending storage for FILE_TYPE_OUTPUT');
-            $this->storage->append('FILE_TYPE_OUTPUT', $chunk);
+            $this->logger->info('Appending storage for outputClient');
+            $this->storage->append('outputClient', $chunk);
         }
     }
 
@@ -146,7 +146,6 @@ class Client
             if (($expectPos = strpos($this->messageBuffer, $expect100Continue)) !== false) {
 
                 $header = substr($this->messageBuffer, 0, $expectPos + strlen($expect100Continue) + 2);
-                $this->parseHeader($header);
 
                 $this->logger->info('\'Expect:100-continue\' found: ');
 

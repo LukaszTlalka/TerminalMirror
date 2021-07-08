@@ -27,17 +27,16 @@ class Websocket  implements MessageComponentInterface
 
         list($clientParam, $clientID) = explode("=", $conn->httpRequest->getUri()->getQuery());
 
-        if (!in_array($clientParam, ["inputClient", "outputClient"]) || !preg_match('/^[a-f0-9]{32}$/', $clientID)) {
+        if (!preg_match('/^[a-f0-9]{32}$/', $clientID)) {
             $this->logger->error('Client tried to open connection with: ' . $conn->httpRequest->getUri()->getQuery());
             $conn->close();
             return;
         }
 
 
-        $conn->clientParam = $clientParam;
         $conn->clientID = $clientID;
 
-        $this->logger->info('Connection opened, type: ' . $clientParam . " clientID: " . $clientID);
+        $this->logger->info('Connection opened, clientID: ' . $clientID);
 
         try {
             $conn->wsStorage = new Storage($clientID, false);
@@ -46,27 +45,37 @@ class Websocket  implements MessageComponentInterface
             $conn->close();
             return;
         }
-
-        if ($clientParam == 'inputClient') {
-            $this->inputClientOnOpen($conn);
-        }
+        
+        $this->startWsLoop($conn);
     }
 
-    public function inputClientOnOpen($conn)
+    public function startWsLoop($conn)
     {
-        $conn->wsStorageHash = null;
+        try {
+            $self = $this;
 
-        $conn->wsLoopTimer = $this->loop->addPeriodicTimer(1, function() use ($conn) {
-            $clientID = $conn->clientID;
+            $lastId = 0;
 
-            if ($conn->wsStorageHash != $newHash = $conn->wsStorage->getModHash(Storage::FILE_TYPE_INPUT)) {
-                $contents = $conn->wsStorage->get(Storage::FILE_TYPE_INPUT);
+            $list = $conn->wsStorage->get('outputClient', $lastId);
 
-                $conn->wsStorageHash = $newHash;
+            if ($content = array_pop($list)) {
+                $lastId = $content['id'];
+            };
+            
+            $this->logger->info('Starting message loop for ws client: ' . $conn->clientID . ' starting from id: '. $lastId);
 
-                $conn->send($contents);
-            }
-        });
+            $conn->wsLoopTimer = $this->loop->addPeriodicTimer(0.01, function() use ($conn, &$lastId, $self) {
+                $clientID = $conn->clientID;
+
+                foreach ($conn->wsStorage->get('outputClient', $lastId + 1) as $lastId => $content) {
+                    $conn->send(json_encode(['k' => $content['data']]));
+                    $self->logger->info('Updating lastId for ws client: ' . $conn->clientID . ' id: '. $lastId);
+                };
+                
+            });
+        } catch (\Exception $e) {
+            $this->logger->error('Error: ' . $e->getMessage());
+        }
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {
@@ -75,25 +84,12 @@ class Websocket  implements MessageComponentInterface
 
         if ($client->wsStorage) {
 
-            if ($client->clientParam != 'outputClient') {
-                return $this->logger->error("We've received a message from the inputClient! Input client should only receive messages that are then forwarded to the bash command.");
-            }
+            $keyObj = json_decode($msg);
 
-            $chunkString = json_encode([
-                'v' => 1,
-                'chunk' => base64_encode($msg),
-                'microtime' => microtime(true)
-            ]);
+            $client->wsStorage->append('inputClient', $keyObj->k);
 
-            $client->wsStorage->append(Storage::FILE_TYPE_OUTPUT, $chunkString);
-
-            $this->logger->info('Message received from outputClient: ' . $client->clientID . ' message: '. $chunkString);
+            $this->logger->info('Message received from ws client: ' . $client->clientID . ' message: '. $keyObj->k);
         }
-
-        //echo "Sending back: ".$msg."\n";
-        //$client->send($msg);
-        //    }
-        //}
     }
 
     public function onClose(ConnectionInterface $conn) {

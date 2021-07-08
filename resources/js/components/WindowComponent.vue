@@ -33,14 +33,14 @@
             </div>
             <div class="messages">
                 <div class="page page-console" v-if="windowData.browser.showTerminal">
-                    <b><i class="fas fa-terminal"></i> ConsoleShare</b>
+                    <b><i class="fas fa-terminal"></i> TerminalMirror</b>
                     <div class='terminal'>
                         <span v-for="n in 50"><span v-bind:id="windowData.name + '-' + n"></span></span>
                     </div>
                 </div>
                 <div class="page page-new-session" v-if="windowData.browser.showNewSession">
                     <div class="text-center">
-                        <h6><i class="fas fa-terminal"></i> ConsoleShare</h6>
+                        <h6><i class="fas fa-terminal"></i> TerminalMirror</h6>
                         <button class="btn btn-success show-command" v-bind:class="{'pulse animated' : windowData.browser.runButtonAnimation}" v-if="windowData.browser.showButton">Create Session</button>
                         <div v-if="windowData.browser.showNewSessionCreated">
                             <div class="alert alert-info" role="alert">

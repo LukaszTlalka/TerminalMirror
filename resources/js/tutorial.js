@@ -131,7 +131,7 @@ class Tutorial {
         })
 
         this.queue(500, () => {
-            this.setBrowserUrl(0, "https://www.consoleshare.com/new-session");
+            this.setBrowserUrl(0, "https://www.terminalmirror.com/new-session");
         })
 
         this.queue(3000, () => {
@@ -171,7 +171,7 @@ class Tutorial {
         })
 
         this.queue(300, () => {
-            this.setBrowserUrl(0, "https://www.consoleshare.com/session/e529eb1eade0b214c4", 0);
+            this.setBrowserUrl(0, "https://www.terminalmirror.com/session/e529eb1eade0b214c4", 0);
         })
 
         this.queue(500, () => {

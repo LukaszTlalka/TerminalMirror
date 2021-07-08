@@ -18,8 +18,8 @@ class Scenario{
         this.event = new EventClass();
 
         this.bash = "curl --request POST --include --header \\\n'Content-Type: application/json'\\\n--data-binary @- --no-buffer \\\nhttp://lukas.localdev/LukaszTlalka/terminal-helper/check/test.php";
-        this.newSessionUrl = 'https://www.consoleshare.com/new-session';
-        this.newSessionStartedUrl = 'https://www.consoleshare.com/session/30D845F2E6DB8E78';
+        this.newSessionUrl = 'https://www.terminalmirror.com/new-session';
+        this.newSessionStartedUrl = 'https://www.terminalmirror.com/session/30D845F2E6DB8E78';
 
         this.loadSteps();
     }

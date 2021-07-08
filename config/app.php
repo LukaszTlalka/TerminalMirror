@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Console Share'),
+    'name' => env('APP_NAME', 'TerminalMirror'),
 
     /*
     |--------------------------------------------------------------------------

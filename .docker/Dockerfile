@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
 
 
 # vim configuration
-ADD ./.docker/base/vim/.vimrc /root/
+ADD ./.docker/vim/.vimrc /root/
 
 # extensions
 RUN docker-php-ext-install bcmath mbstring pdo_mysql gd zip mysqli
@@ -43,15 +43,13 @@ RUN apt -y install nodejs
 RUN apt -y install locales-all
 
 # cache composer and npm
-ADD ./ /cache
-
-RUN cd /cache/ && composer install --no-scripts
-RUN cd /cache/ && npm install && npm run production
-
-RUN mkdir /cache-llm/
-RUN mv /cache/node_modules /cache-llm/
-RUN mv /cache/vendor /cache-llm/
-RUN rm -rf /cache
+#RUN cd /cache/ && composer install --no-scripts
+#RUN cd /cache/ && npm install && npm run production
+#
+#RUN mkdir /cache-llm/
+#RUN mv /cache/node_modules /cache-llm/
+#RUN mv /cache/vendor /cache-llm/
+#RUN rm -rf /cache
 
 #apache
 RUN a2enmod rewrite

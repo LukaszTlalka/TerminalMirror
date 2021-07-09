@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: terminal-mirror-com
+  namespace: default
+spec:
+  secretName: terminal-mirror-tls
+  issuerRef:
+    name: letsencrypt-prod
+  commonName: terminalmirror.com
+  dnsNames:
+  - terminalmirror.com
+  - www.terminalmirror.com

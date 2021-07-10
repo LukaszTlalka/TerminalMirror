@@ -65,6 +65,11 @@ RUN touch /share/storage/logs/laravel.log
 RUN chmod 777 /share/storage -R
 RUN chmod 777 /share/bootstrap/cache/ -R
 
+
+### REDIS 
+RUN pecl install redis-5.3.4 \
+    && docker-php-ext-enable redis
+
 RUN cd /share/ && composer install
 RUN cd /share/ && npm install && npm run production
 

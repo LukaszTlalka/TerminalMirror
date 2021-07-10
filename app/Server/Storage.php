@@ -20,7 +20,7 @@ class Storage
     {
         $this->reference = $reference;
         $this->cacheTimeout = config('cache.stores.terminal.timeout');
-        $this->cache = Cache::store('terminal');
+        $this->cache = Cache::store(env('STORAGE_CACHE'));
 
         if ($clearExistingStorage) {
             $this->cache->forget($this->reference);

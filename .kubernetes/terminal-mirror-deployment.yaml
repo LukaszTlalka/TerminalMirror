@@ -23,8 +23,6 @@ spec:
       - name: apache-terminal-mirror-com
         image: core.harbor.kubernetes.netblink.pl/terminal-mirror/base:master
         env:
-        - name: APP_URL
-          value: "https://terminalmirror.com/"
         - name: APP_ENV
           value: production
         - name: CI_COMMIT_SHORT_SHA
@@ -36,8 +34,6 @@ spec:
       - name: curl-terminal-mirror-com
         image: core.harbor.kubernetes.netblink.pl/terminal-mirror/base:master
         env:
-        - name: APP_URL
-          value: "https://terminalmirror.com/"
         - name: APP_ENV
           value: production
         - name: CI_COMMIT_SHORT_SHA
@@ -53,16 +49,19 @@ spec:
       - name: ws-terminal-mirror-com
         image: core.harbor.kubernetes.netblink.pl/terminal-mirror/base:master
         env:
-        - name: APP_URL
-          value: "https://terminalmirror.com/"
         - name: APP_ENV
           value: production
         - name: CI_COMMIT_SHORT_SHA
           value: "$CI_COMMIT_SHORT_SHA"
-        - name: APP_SERVER_PORT
-          value: "3006"
+        - name: WEBSOCKET_SERVER_PORT
+          value: "3005"
         imagePullPolicy: Always
         command: ["bash","-c"]
         args: ["cd /share && php artisan server:terminal debug"]
         ports:
         - containerPort: 3005
+
+      - name: memcached-trminal-mirror-com
+        image: memcached
+        ports:
+        - containerPort: 6379

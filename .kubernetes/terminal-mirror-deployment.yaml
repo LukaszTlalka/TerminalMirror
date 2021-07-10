@@ -61,7 +61,7 @@ spec:
         ports:
         - containerPort: 3005
 
-      - name: memcached-trminal-mirror-com
-        image: memcached
+      - name: redis-trminal-mirror-com
+        image: redis:5.0.12
         ports:
         - containerPort: 6379

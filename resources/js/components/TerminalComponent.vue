@@ -39,7 +39,7 @@ export default {
         term.writeln('');
         term.prompt()
 
-        let conn = new WebSocket(WS.host + ":" + WS.port + "/console-share?client=" + WS.client);
+        let conn = new WebSocket(WS.host + (WS.port ? (":" + WS.port) : '' ) + "/console-share?client=" + WS.client);
 
         conn.onmessage = (e) => {
             console.log("Received: " + e.data);

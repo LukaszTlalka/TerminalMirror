@@ -38,6 +38,7 @@
 
                 <div class="collapse navbar-collapse text-right">
                     <ul class="navbar-nav mr-auto">
+                        {{--
                         <li class="nav-item">
                             <a class="nav-link" href="#">How it works</a>
                         </li>
@@ -55,6 +56,7 @@
                                 <a class="dropdown-item" href="#">Something else here</a>
                             </div>
                         </li>
+                        --}}
                     </ul>
                 </div>
             </div>

@@ -29,23 +29,40 @@ spec:
           value: production
         - name: CI_COMMIT_SHORT_SHA
           value: "$CI_COMMIT_SHORT_SHA"
-
         imagePullPolicy: Always
         ports:
         - containerPort: 80
 
----
+      - name: curl-terminal-mirror-com
+        image: core.harbor.kubernetes.netblink.pl/terminal-mirror/base:master
+        env:
+        - name: APP_URL
+          value: "https://terminalmirror.com/"
+        - name: APP_ENV
+          value: production
+        - name: CI_COMMIT_SHORT_SHA
+          value: "$CI_COMMIT_SHORT_SHA"
+        - name: APP_SERVER_PORT
+          value: "3006"
+        imagePullPolicy: Always
+        command: ["bash","-c"]
+        args: ["cd /share && php artisan server:curl-in debug"]
+        ports:
+        - containerPort: 3006
 
-apiVersion: v1
-kind: Service
-metadata:
-  name: terminal-mirror-com-service
-spec:
-  type: ClusterIP
-  selector:
-    app: terminal-mirror-com
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
-
+      - name: ws-terminal-mirror-com
+        image: core.harbor.kubernetes.netblink.pl/terminal-mirror/base:master
+        env:
+        - name: APP_URL
+          value: "https://terminalmirror.com/"
+        - name: APP_ENV
+          value: production
+        - name: CI_COMMIT_SHORT_SHA
+          value: "$CI_COMMIT_SHORT_SHA"
+        - name: APP_SERVER_PORT
+          value: "3006"
+        imagePullPolicy: Always
+        command: ["bash","-c"]
+        args: ["cd /share && php artisan server:terminal debug"]
+        ports:
+        - containerPort: 3005

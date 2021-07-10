@@ -5,6 +5,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     certmanager.k8s.io/issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
     ingress.kubernetes.io/ssl-redirect: "true"
     ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -31,3 +32,73 @@ spec:
         backend:
           serviceName: terminal-mirror-com-service
           servicePort: 80
+
+  - host: "terminalmirror.com"
+    http:
+      paths:
+      - path: "/inputClient"
+        backend:
+          serviceName: curl-terminal-mirror-com-service
+          servicePort: 3006
+
+  - host: "terminalmirror.com"
+    http:
+      paths:
+      - path: "/outputClient"
+        backend:
+          serviceName: curl-terminal-mirror-com-service
+          servicePort: 3006
+
+  - host: "terminalmirror.com"
+    http:
+      paths:
+      - path: "/console-share"
+        backend:
+          serviceName: ws-terminal-mirror-com-service
+          servicePort: 3005
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: terminal-mirror-com-service
+spec:
+  type: ClusterIP
+  selector:
+    app: terminal-mirror-com
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: curl-terminal-mirror-com-service
+spec:
+  type: ClusterIP
+  selector:
+    app: terminal-mirror-com
+  ports:
+  - protocol: TCP
+    port: 3006
+    targetPort: 3006
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ws-terminal-mirror-com-service
+spec:
+  type: ClusterIP
+  selector:
+    app: terminal-mirror-com
+  ports:
+  - protocol: TCP
+    port: 3005
+    targetPort: 3005

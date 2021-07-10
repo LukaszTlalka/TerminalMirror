@@ -19,7 +19,7 @@ class SessionController extends Controller
 
         $command = \App\Server\Command::getCommand($ref);
 
-        return view('session.new', compact('command'));
+        return view('session.new', compact('command', 'ref'));
     }
 
     public function terminal(string $hash)
@@ -34,5 +34,17 @@ class SessionController extends Controller
         ];
 
         return view('session.terminal', compact('websocket'));
+    }
+
+    public function checkCurlSession($ref)
+    {
+        $storage = new ServerStorage($ref);
+
+        $log = $storage->get('log');
+        if (count($log) >= 2) {
+            return response()->json(['success' => true, 'redirect' => route('terminal-session', [$ref])]);
+        } else {
+            return response()->json(['success' => false]);
+        }
     }
 }

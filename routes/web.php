@@ -25,8 +25,10 @@ Route::get('/', function () {
 });
 
 Route::get('/new-session', 'SessionController@create');
+Route::get('/check-curl-session/{hash}', 'SessionController@checkCurlSession')->name('check-curl-session');
 Route::get('/terminal/{hash}', 'SessionController@terminal')
-    ->where(['hash' => '([a-f0-9]{32})', 'name' => '[a-z]+']);;
+    ->where(['hash' => '([a-f0-9]{32})', 'name' => '[a-z]+'])
+    ->name('terminal-session');
 
 if (env('APP_ENV') == 'local') {
     Route::get('/debug/files', 'DebugController@files');

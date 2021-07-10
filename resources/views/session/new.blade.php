@@ -1,7 +1,8 @@
 @extends('layout.app')
 
 @section('content')
-    <main role="main">
+    <main role="main" id='consoleShareApp'>
+        <new-session-component route="{{ route('check-curl-session', $ref) }}"></new-session-component>
         <div class="container">
             <div class="row justify-content-md-center">
                 <div class="col col-md-5 mt-5">

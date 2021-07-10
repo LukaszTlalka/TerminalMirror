@@ -105,7 +105,7 @@ class Client
             }
 
             $this->clientType = $uriInfo[2] == 'o' ? 'outputClient' : 'inputClient';
-            
+
             $this->logger->info('Client connected: ' . $this->userAuth . " type: " . $this->clientType);
 
             if (!$this->storage) {
@@ -117,8 +117,9 @@ class Client
 
                     $log = $this->storage->get('log');
                     if (count($log) != 1) {
-                        // TODO: uncomment
-                        //throw new \Exception("Already taken or input not initialized.");
+                        if (config('app.env') == 'production') {
+                            throw new \Exception("Already taken or input not initialized.");
+                        }
                     }
 
                     $this->storage->append('log', "curl-started");

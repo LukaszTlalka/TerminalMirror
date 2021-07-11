@@ -10,9 +10,9 @@ class Client
     private $messageBuffer = "";
 
     /**
-     * @var Wether Expect: 100-continue has been reached
+     * @var Wether end of header has been reached ("\r\n\r\n")
      */
-    private $expect100Reached = false;
+    private $headerSent = false;
 
     /**
      * @var extracted from the header of the message
@@ -95,7 +95,7 @@ class Client
      */
     public function parseBuffer()
     {
-        if (!$this->userAuth && preg_match("/Authorization: Bearer ([a-f0-9]{32})\r\n/", $this->messageBuffer, $clientInfo)) {
+        if (!$this->userAuth && preg_match("/Authorization: Bearer ([a-f0-9]{32})\r\n/i", $this->messageBuffer, $clientInfo)) {
 
             $this->userAuth = $clientInfo[1];
 
@@ -115,19 +115,29 @@ class Client
                     // check if input has been initialized
                     // so that we don't have two users pushing data to the same input
 
-                    $log = $this->storage->get('log');
-                    if (count($log) != 1) {
-                        if (config('app.env') == 'production') {
-                            throw new \Exception("Already taken or input not initialized.");
+
+                    $msgLog = 'curl-started:'.$this->clientType;
+
+                    if (config('app.env') == 'production') {
+                        foreach ($this->storage->get('log') as $k => $msg) {
+                            if ($k > 3) {
+                                break;
+                            }
+
+                            if ($msg['data'] == $msgLog) {
+                                throw new \Exception("Already taken or input not initialized.");
+                            }
                         }
                     }
 
-                    $this->storage->append('log', "curl-started");
+                    $this->storage->append('log', $msgLog);
                 } catch (\Exception $e) {
 
                     if (config('app.env') != 'production') {
                         throw $e;
                     }
+
+                    $this->logger->error($e->getMessage());
 
                     $this->end();
                 }
@@ -136,36 +146,35 @@ class Client
             $this->clientRecognized();
         }
 
-        // for input client we don't care about what we get from the 
+        // for input client we don't care about what we get from the
         if ($this->clientType == 'inputClient') {
             $this->messageBuffer = "";
             return [];
         }
 
-        if (!$this->expect100Reached) {
-            $expect100Continue = "Expect: 100-continue\r\n";
-            if (($expectPos = strpos($this->messageBuffer, $expect100Continue)) !== false) {
+        if (!$this->headerSent) {
+            $headerEnd = "\r\n\r\n";
+            if (($expectPos = strpos($this->messageBuffer, $headerEnd)) !== false) {
+                $this->logger->info('Full header found');
 
-                $header = substr($this->messageBuffer, 0, $expectPos + strlen($expect100Continue) + 2);
-
-                $this->logger->info('\'Expect:100-continue\' found: ');
-
-                $this->messageBuffer = substr($this->messageBuffer, $expectPos + strlen($expect100Continue) + 2);
-                $this->expect100Reached = true;
+                $this->messageBuffer = substr($this->messageBuffer, $expectPos + strlen($headerEnd));
+                $this->headerSent = true;
 
                 return $this->parseBuffer();
+            } else {
+                $this->logger->error('Full header not found');
             }
 
             return [];
         }
 
 
-        if (!$this->expect100Reached && strlen($this->messageBuffer) > 10000 ) {
+        if (!$this->headerSent && strlen($this->messageBuffer) > 10000 ) {
             $this->abort();
             return [];
         }
 
-        if ($this->expect100Reached && preg_match("/^([0-9a-f]*)\r\n/i", $this->messageBuffer, $res)) {
+        if ($this->headerSent && preg_match("/^([0-9a-f]*)\r\n/i", $this->messageBuffer, $res)) {
             $chunkSizeHex = $res[1];
             $chunkSize = hexdec($chunkSizeHex);
             $chunk = substr($this->messageBuffer, strlen($chunkSizeHex) + 2, $chunkSize);

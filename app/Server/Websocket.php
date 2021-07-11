@@ -61,10 +61,10 @@ class Websocket  implements MessageComponentInterface
             if ($content = array_pop($list)) {
                 $lastId = $content['id'];
             };
-            
+
             $this->logger->info('Starting message loop for ws client: ' . $conn->clientID . ' starting from id: '. $lastId);
 
-            $conn->wsLoopTimer = $this->loop->addPeriodicTimer(1, function() use ($conn, &$lastId, $self) {
+            $conn->wsLoopTimer = $this->loop->addPeriodicTimer(0.01, function() use ($conn, &$lastId, $self) {
 
                 $self->logger->info('wsLoopTimer ' . $conn->clientID . ' id: '. $lastId);
 
@@ -74,7 +74,7 @@ class Websocket  implements MessageComponentInterface
                     $conn->send(json_encode(['k' => $content['data']]));
                     $self->logger->info('Updating lastId for ws client: ' . $conn->clientID . ' id: '. $lastId);
                 };
-                
+
             });
         } catch (\Exception $e) {
             $this->logger->error('Error: ' . $e->getMessage());

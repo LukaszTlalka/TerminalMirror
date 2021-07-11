@@ -65,9 +65,6 @@ class Websocket  implements MessageComponentInterface
             $this->logger->info('Starting message loop for ws client: ' . $conn->clientID . ' starting from id: '. $lastId);
 
             $conn->wsLoopTimer = $this->loop->addPeriodicTimer(0.01, function() use ($conn, &$lastId, $self) {
-
-                $self->logger->info('wsLoopTimer ' . $conn->clientID . ' id: '. $lastId);
-
                 $clientID = $conn->clientID;
 
                 foreach ($conn->wsStorage->get('outputClient', $lastId + 1) as $lastId => $content) {

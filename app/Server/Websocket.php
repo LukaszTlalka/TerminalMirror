@@ -45,7 +45,7 @@ class Websocket  implements MessageComponentInterface
             $conn->close();
             return;
         }
-        
+
         $this->startWsLoop($conn);
     }
 
@@ -56,23 +56,54 @@ class Websocket  implements MessageComponentInterface
 
             $lastId = 0;
 
-            $list = $conn->wsStorage->get('outputClient', $lastId);
+            // $list = $conn->wsStorage->get('outputClient', $lastId);
 
-            if ($content = array_pop($list)) {
-                $lastId = $content['id'];
-            };
+            // if ($content = array_pop($list)) {
+            //     $lastId = 0;
+            //     $content['id'];
+            // };
 
             $this->logger->info('Starting message loop for ws client: ' . $conn->clientID . ' starting from id: '. $lastId);
 
-            $conn->wsLoopTimer = $this->loop->addPeriodicTimer(0.01, function() use ($conn, &$lastId, $self) {
-                $clientID = $conn->clientID;
 
-                foreach ($conn->wsStorage->get('outputClient', $lastId + 1) as $lastId => $content) {
-                    $conn->send(json_encode(['k' => $content['data']]));
-                    $self->logger->info('Updating lastId for ws client: ' . $conn->clientID . ' id: '. $lastId);
-                };
+            $conn->isActiveUser = true;
+            $conn->lastReadStamp = time();
+            $conn->wsLoopTimer = null;
 
+            $conn->wsAdjustLoopTimer = $this->loop->addPeriodicTimer(\App\Server\Client::LOOP_ADJUST_INTERVAL/1000, function() use (&$conn, &$lastId, $self) {
+
+                if (isset($conn->wsLoopTimer)) {
+                    $self->loop->cancelTimer($conn->wsLoopTimer);
+                }
+
+                $baseSpeed = \App\Server\Client::CHECK_FOR_MSGS_ACTIVE_USER;
+
+                $prevUserStatus = $conn->isActiveUser;
+
+                if (time() - $conn->lastReadStamp >= \App\Server\Client::CHECK_FOR_MSGS_ACTIVE_USER) {
+                    $conn->isActiveUser = false;
+                    $baseSpeed = \App\Server\Client::CHECK_FOR_MSGS_INACTIVE_USER;
+                } else {
+                    $conn->isActiveUser = true;
+                    $baseSpeed = \App\Server\Client::CHECK_FOR_MSGS_ACTIVE_USER;
+                }
+
+                if ($prevUserStatus != $conn->isActiveUser) {
+                    $self->logger->info("Changing loop speed for ws client: " . $conn->clientID . "  to: " .($conn->isActiveUser ? 'active' : 'inactive'));
+                }
+
+                $conn->wsLoopTimer = $self->loop->addPeriodicTimer($baseSpeed/1000, function() use (&$conn, &$lastId, $self) {
+                    $clientID = $conn->clientID;
+
+                    foreach ($conn->wsStorage->get('outputClient', $lastId + 1) as $lastId => $content) {
+                        $conn->send(json_encode(['k' => $content['data']]));
+                        $self->logger->info('Updating lastId for ws client: ' . $conn->clientID . ' id: '. $lastId);
+
+                        $conn->lastReadStamp = time();
+                    };
+                });
             });
+
         } catch (\Exception $e) {
             $this->logger->error('Error: ' . $e->getMessage());
         }

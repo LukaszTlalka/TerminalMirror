@@ -19,7 +19,12 @@ class SessionController extends Controller
 
         $command = \App\Server\Command::getCommand($ref);
 
-        return view('session.new', compact('command', 'ref'));
+        return view('session.new', compact('command', 'ref'))
+            ->withHeaders([
+                "Cache-Control" => "no-cache, no-store, must-revalidate",
+                "Pragma" => "no-cache",
+                "Expires" => "0"
+            ]);
     }
 
     public function terminal(string $hash)

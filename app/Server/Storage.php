@@ -60,7 +60,7 @@ class Storage
             $key = $this->reference . $fileType . $i;
 
             if ($cacheData = $this->cache->get($key, null)) {
-                $out[$i] = ['id' => $i, 'data' => $cacheData];
+                $out[$i] = ['id' => $i, 'data' => base64_decode($cacheData)];
             }
         }
 
@@ -99,7 +99,7 @@ class Storage
 
         $key = $this->reference . $fileType . $info[$modKey];
 
-        $this->cache->set($key, $data, $this->cacheTimeout);
+        $this->cache->set($key, base64_encode($data), $this->cacheTimeout);
 
         return $info[$modKey];
     }

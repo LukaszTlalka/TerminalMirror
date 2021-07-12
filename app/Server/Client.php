@@ -4,6 +4,15 @@ namespace App\Server;
 
 class Client
 {
+
+
+    private static $userIdCounter = 0;
+
+    /**
+      * @var unique user ID
+     */
+    private $userID = null;
+
     /**
      * @var incomming socket data  buffer
      */
@@ -35,10 +44,45 @@ class Client
     private $reader = null;
 
     /**
+     * @var Amp\Loop watcher id
+     */
+    public $clientReadWatcherId = null;
+
+    /**
+     * @var int time when the last message was received 
+     */
+    public $lastReadStamp = null;
+
+    private $isActiveUser = true;
+
+    /**
+     * Timeout after which user becomes inactive
+     * No messages received (in seconds)
+     */
+    const ACTIVE_USER_MESSAGE_TIMEOUT = 10;
+
+
+    /**
+     * How often to check for new messages for active and inactive users
+     * in milliseconds
+     */
+    const CHECK_FOR_MSGS_ACTIVE_USER = 10;
+
+    const CHECK_FOR_MSGS_INACTIVE_USER = 499;
+
+    /**
+     * How often adjust ACTIVE/INACTIVE interval
+     */
+    const LOOP_ADJUST_INTERVAL = 2000;
+
+
+    /**
      * @param $reader - reader provides the data
      */
     public function __construct(\App\Server\ChunkReader $reader, $logger)
     {
+        $this->userID = ++self::$userIdCounter;
+
         $this->reader = $reader;
         $this->logger = $logger;
 
@@ -60,7 +104,7 @@ class Client
 
     public function clientRecognized()
     {
-        if (!$this->clientType == 'inputClient') {
+        if ($this->clientType != 'inputClient') {
             return;
         }
 
@@ -69,14 +113,63 @@ class Client
 
         $self = $this;
 
+        $self->lastReadStamp = time();
         $self->inputClientLastId = 0;
-        \Amp\Loop::repeat(10, function($repeaterID) use ($self) {
-            foreach ($self->storage->get('inputClient', $self->inputClientLastId) as $id => $input) {
-                $self->inputClientLastId = $id+1;
-                $self->reader->write($input['data']);
-                $self->logger->info('Writing: ' . substr(str_replace(["\n", "\r"], ["\\n", "\\r"], $input['data']), 0, 50));
-            };
+        $self->loopRepeatSpeed = 10;
+
+/*
+    private $isActiveUser = true;
+
+    const ACTIVE_USER_MESSAGE_TIMEOUT = 10;
+
+    const CHECK_FOR_MSGS_ACTIVE_USER = 10;
+
+    const CHECK_FOR_MSGS_INACTIVE_USER = 499;
+ */
+
+        $self->logger->info("Starting \Amp\Loop userID: " . $this->userID . ' type: ' . $this->clientType . ' id: ' . $this->userAuth);
+
+        // Addjust loop delay so that we don't hammer the CPU all the time
+        \Amp\Loop::repeat(self::LOOP_ADJUST_INTERVAL, function($adjusterID) use ($self) {
+            if ($self->clientReadWatcherId) {
+                \Amp\Loop::cancel($self->clientReadWatcherId);
+            }
+
+            $baseSpeed = self::CHECK_FOR_MSGS_ACTIVE_USER;
+
+            $prevUserStatus = $self->isActiveUser;
+
+            if (time() - $self->lastReadStamp >= self::CHECK_FOR_MSGS_ACTIVE_USER) {
+                $self->isActiveUser = false;
+                $baseSpeed = self::CHECK_FOR_MSGS_INACTIVE_USER;
+            } else {
+                $self->isActiveUser = true;
+                $baseSpeed = self::CHECK_FOR_MSGS_ACTIVE_USER;
+            }
+
+            if ($prevUserStatus != $self->isActiveUser) {
+                $self->logger->info("Changing loop speed for ".($self->isActiveUser ? 'active' : 'inactive')." userID: " . $this->userID . ' type: ' . $this->clientType . ' id: ' . $this->userAuth);
+            }
+
+            $self->loopRepeatSpeed = $baseSpeed;
+
+            \Amp\Loop::repeat($baseSpeed, function($watcherId) use ($self) {
+
+                $self->clientReadWatcherId = $watcherId;
+
+                foreach ($self->storage->get('inputClient', $self->inputClientLastId) as $id => $input) {
+
+                    $self->lastReadStamp = time();
+                    $self->inputClientLastId = $id+1;
+                    $self->reader->write($input['data']);
+                    $self->logger->info('Writing: ' . substr(str_replace(["\n", "\r"], ["\\n", "\\r"], $input['data']), 0, 50));
+                };
+            });
+
         });
+
+
+
     }
 
     /**
@@ -142,6 +235,8 @@ class Client
                     $this->end();
                 }
             }
+
+            $this->logger->info("Client recognized userID: " . $this->userID . ' type: ' . $this->clientType . ' id: ' . $this->userAuth);
 
             $this->clientRecognized();
         }

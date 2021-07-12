@@ -7,6 +7,10 @@ metadata:
     certmanager.k8s.io/issuer: letsencrypt-production
     nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "30000000"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30000000"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "30000000"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30000000"
+    nginx.ingress.kubernetes.io/proxy-next-upstream-timeout: "30000000"
     ingress.kubernetes.io/ssl-redirect: "true"
     ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"

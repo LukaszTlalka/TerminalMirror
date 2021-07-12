@@ -43,9 +43,20 @@ class ServerTmux extends Command
 
         $this->call('cache:clear');
 
+        $this->info('Commands: ');
+
+        $this->info("echo \"curl-in server: \" && php artisan server:curl-in debug");
+        $this->info("echo \"WebSocket server: \" && php artisan server:terminal-websocket debug");
+        $this->info("echo \"Watch outputClient: \" && php artisan storage:watcher 2283ca20ac84d62bf52819474a1d5f00 outputClient");
+        $this->info("php artisan serve --host=0.0.0.0 --port=".$port."");
+        $this->info("echo \"Push to inputClient: \" && php artisan storage:write-constant 2283ca20ac84d62bf52819474a1d5f00 inputClient");
+        $this->info("echo \"Terminal share command\" && sleep 5 && curl --http1.1 -s -N -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" http://localhost:{$curlPort}/inputClient | script -q | curl -H \"Transfer-Encoding: chunked\" -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" -X POST -T - http://localhost:{$curlPort}/outputClient");
+
+        $this->info("\n");
+
         $cmd =  "tmux " .
             "new-session 'echo \"curl-in server: \" && php artisan server:curl-in debug' \; " .
-            "split-window 'echo \"WebSocket server: \" && php artisan server:terminal debug' \; " .
+            "split-window 'echo \"WebSocket server: \" && php artisan server:terminal-websocket debug' \; " .
             "split-window -h 'echo \"Watch outputClient: \" && php artisan storage:watcher 2283ca20ac84d62bf52819474a1d5f00 outputClient' \; " .
             "split-window 'php artisan serve --host=0.0.0.0 --port=".$port."' \; " .
             "split-window 'echo \"Push to inputClient: \" && php artisan storage:write-constant 2283ca20ac84d62bf52819474a1d5f00 inputClient' \; " .
@@ -57,5 +68,6 @@ class ServerTmux extends Command
         $this->info("Navigate to: http://localhost:".$port."/terminal/2283ca20ac84d62bf52819474a1d5f00");
 
         shell_exec($cmd);
+        shell_exec("tmux set-option remain-on-exit on");
     }
 }

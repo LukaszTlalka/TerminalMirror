@@ -34,7 +34,7 @@ all.dev-kube.leafletcomms.co.uk-deployment:
   script:
     - kubectl version
     - kubectl apply --help 
-    - cat .kubernetes/terminal-mirror-deployment.yaml | sed "s/%DATE%/$(date '+%Y-%m-%d')/g" | sed "s/\$CI_COMMIT_SHORT_SHA/${CI_COMMIT_SHORT_SHA/}/g" | kubectl --kubeconfig $KUBE_CONFIG apply -f -
+    - cat .kubernetes/terminal-mirror-deployment.yaml | sed "s/%DATE%/$(date '+%Y-%m-%d')/g" | sed "s/\$CI_COMMIT_SHORT_SHA/${CI_COMMIT_SHORT_SHA/}/g" | kubectl --kubeconfig $KUBE_CONFIG apply -
   tags:
     - kubernetes-runner
 ## deploy live container

@@ -5,21 +5,21 @@ stages:
 ####################################################
 ## terminalmirror build live container
 
-build-docker-image:
-  stage: build-containers
-  only:
-    - master
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  script:
-    # Setup login credentials
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$CI_REGISTRY_AUTH\"}}}" > /kaniko/.docker/config.json
-    - mv $ENV_FILE $CI_PROJECT_DIR/.env
-#    - ls -al $CI_PROJECT_DIR;
-    - /kaniko/executor --single-snapshot --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/.docker/Dockerfile --destination $CI_REGISTRY/base:master
-  tags:
-    - kubernetes-runner
+# build-docker-image:
+#   stage: build-containers
+#   only:
+#     - master
+#   image:
+#     name: gcr.io/kaniko-project/executor:debug
+#     entrypoint: [""]
+#   script:
+#     # Setup login credentials
+#     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$CI_REGISTRY_AUTH\"}}}" > /kaniko/.docker/config.json
+#     - mv $ENV_FILE $CI_PROJECT_DIR/.env
+# #    - ls -al $CI_PROJECT_DIR;
+#     - /kaniko/executor --single-snapshot --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/.docker/Dockerfile --destination $CI_REGISTRY/base:master
+#   tags:
+#     - kubernetes-runner
 
 ## terminalmirror build live container
 ####################################################
@@ -32,8 +32,7 @@ all.dev-kube.leafletcomms.co.uk-deployment:
     - master
   image: bitnami/kubectl:1.16.2
   script:
-    - kubectl version
-    - kubectl apply --help 
+    - cat .kubernetes/terminal-mirror-deployment.yaml | sed "s/%DATE%/$(date '+%Y-%m-%d')/g" | sed "s/\$CI_COMMIT_SHORT_SHA/${CI_COMMIT_SHORT_SHA/}/g"
     - cat .kubernetes/terminal-mirror-deployment.yaml | sed "s/%DATE%/$(date '+%Y-%m-%d')/g" | sed "s/\$CI_COMMIT_SHORT_SHA/${CI_COMMIT_SHORT_SHA/}/g" | kubectl --kubeconfig $KUBE_CONFIG apply -
   tags:
     - kubernetes-runner

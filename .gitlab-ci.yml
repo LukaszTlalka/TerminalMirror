@@ -32,7 +32,7 @@ all.dev-kube.leafletcomms.co.uk-deployment:
     - master
   image: bitnami/kubectl:1.16.2
   script:
-    - echo $KUBECONFIG
+    - env
     - cat .kubernetes/terminal-mirror-deployment.yaml | sed "s/%DATE%/$(date '+%Y-%m-%d')/g" | sed "s/\$CI_COMMIT_SHORT_SHA/${CI_COMMIT_SHORT_SHA/}/g" | kubectl --kubeconfig $KUBECONFIG apply -f -
   tags:
     - kubernetes-runner

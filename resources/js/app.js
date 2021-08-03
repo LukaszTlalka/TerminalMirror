@@ -10,7 +10,7 @@ require('./bootstrap');
 window.Vue = require('vue');
 
 import bFormSlider from 'vue-bootstrap-slider';
-import 'bootstrap-slider/dist/css/bootstrap-slider.css'
+import 'bootstrap-slider/dist/css/bootstrap-slider.css';
 
 Vue.use(bFormSlider)
 
@@ -50,7 +50,6 @@ window.addEventListener( "pageshow", function ( event ) {
   }
 });
 
-
 /*
 +require('./bootstrap');
 +const Tutor = require('./tutorial');
@@ -61,7 +60,7 @@ window.addEventListener( "pageshow", function ( event ) {
 +
 +    $("#watch-preview").click(() => $(".main-message").fadeOut(2000));
 +
-+    
++
 +    var typed = new Typed('.type-effect', {
 +        strings: [text],
 +        typeSpeed: 90,
@@ -73,7 +72,7 @@ window.addEventListener( "pageshow", function ( event ) {
 +
 +        }
 +    });
-+    
++
 +
 +    let tutor = new Tutor();
 +    tutor.start('#tutor-terminal-window', '#tutor-chat-window', '#tutor-chat-second-window');

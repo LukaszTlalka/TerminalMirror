@@ -1,10 +1,18 @@
+@use 'node_modules/highlight.js/scss/dark';
 @import url('https://fonts.googleapis.com/css?family=Nova+Mono&display=swap');
-
 
 html, body, .full-page { height: 100%; width: 100%; margin: 0; }
 
 .navbar {
         background: url("/images/texture-dark.png");
+}
+
+#consoleShareApp {
+    padding-top: 15px;
+
+    &.full-height {
+        padding-top: 0;
+    }
 }
 
 .full-height {

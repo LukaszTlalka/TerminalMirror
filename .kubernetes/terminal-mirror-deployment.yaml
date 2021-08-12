@@ -42,7 +42,7 @@ spec:
           value: "3006"
         imagePullPolicy: Always
         command: ["bash","-c"]
-        args: ["cd /share && php artisan server:curl-in debug"]
+        args: ["cd /share && php artisan server:curl-in"]
         ports:
         - containerPort: 3006
 
@@ -57,7 +57,7 @@ spec:
           value: "3005"
         imagePullPolicy: Always
         command: ["bash","-c"]
-        args: ["cd /share && php artisan server:terminal debug"]
+        args: ["cd /share && php artisan server:terminal"]
         ports:
         - containerPort: 3005
 

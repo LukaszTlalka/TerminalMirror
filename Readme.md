@@ -1,6 +1,6 @@
 # Console Share
 
-Laravel based system that allows for easy console sharing over the web using nothing but curl.
+Laravel based system that allows for easy console sharing over the web using nothing but curl and script -q command.
 
 ### Operation Principle
 

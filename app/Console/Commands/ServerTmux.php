@@ -50,7 +50,7 @@ class ServerTmux extends Command
         $this->info("echo \"Watch outputClient: \" && php artisan storage:watcher 2283ca20ac84d62bf52819474a1d5f00 outputClient");
         $this->info("php artisan serve --host=0.0.0.0 --port=".$port."");
         $this->info("echo \"Push to inputClient: \" && php artisan storage:write-constant 2283ca20ac84d62bf52819474a1d5f00 inputClient");
-        $this->info("echo \"Terminal share command\" && sleep 5 && curl --http1.1 -s -N -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" http://localhost:{$curlPort}/inputClient | script -q | curl -H \"Transfer-Encoding: chunked\" -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" -X POST -T - http://localhost:{$curlPort}/outputClient");
+        $this->info("echo \"Terminal share command\" && sleep 5 && curl --http1.1 -s -N -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" http://localhost:{$curlPort}/inputClient | script -q /dev/null | curl -H \"Transfer-Encoding: chunked\" -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" -X POST -T - http://localhost:{$curlPort}/outputClient");
 
         $this->info("\n");
 
@@ -60,11 +60,11 @@ class ServerTmux extends Command
             "split-window -h 'echo \"Watch outputClient: \" && php artisan storage:watcher 2283ca20ac84d62bf52819474a1d5f00 outputClient' \; " .
             "split-window 'php artisan serve --host=0.0.0.0 --port=".$port."' \; " .
             "split-window 'echo \"Push to inputClient: \" && php artisan storage:write-constant 2283ca20ac84d62bf52819474a1d5f00 inputClient' \; " .
-            "split-window 'echo \"Terminal share command\" && sleep 5 && curl --http1.1 -s -N -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" http://localhost:{$curlPort}/inputClient | script -q | curl -H \"Transfer-Encoding: chunked\" -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" -X POST -T - http://localhost:{$curlPort}/outputClient' \; " .
+            "split-window 'echo \"Terminal share command\" && sleep 5 && curl --http1.1 -s -N -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" http://localhost:{$curlPort}/inputClient | script -q /dev/null | curl -H \"Transfer-Encoding: chunked\" -H \"Authorization: Bearer 2283ca20ac84d62bf52819474a1d5f00\" -X POST -T - http://localhost:{$curlPort}/outputClient' \; " .
             "detach-client";
 
         $this->info($cmd);
-        
+
         $this->info("Navigate to: http://localhost:".$port."/terminal/2283ca20ac84d62bf52819474a1d5f00");
 
         shell_exec($cmd);

@@ -1,10 +1,10 @@
 # Console Share
 
-Laravel based system that allows for easy console sharing over web using nothing but curl.
+Laravel based system that allows for easy console sharing over the web using nothing but curl.
 
 ### Operation Principle
 
-System requires 3 http servers running to operate:
+The system requires 3 HTTP servers running to operate:
 
 1) `php artisan serve`
 
@@ -26,9 +26,9 @@ For curl communication:
 
 The basic operation principle is quite simple:
 
-1) Read input from custom http socket amp server (php artisan serve:curl-in)
+1) Read input from custom HTTP socket amp server (php artisan serve:curl-in)
 2) Pipe the result into script -q  command
-3) Write output to custom http socket amp server (php artisan serve:curl-in)
+3) Write output to custom HTTP socket amp server (php artisan serve:curl-in)
 
 [inputClient curl ] | script -q | outputClient curl ...
 
@@ -60,7 +60,3 @@ php artisan bash:random | bash | curl -H "Transfer-Encoding: chunked"  -H "Conte
 
 curl -H "Transfer-Encoding: chunked" -X POST -T - http://localhost:3005/console-share?inputClient=1675d32308cc13ddb8a14c6b5df0f59c -s
 
-
-## IDEAS
-
-socat - EXEC:'bash',pty,setsid,ctty | cat

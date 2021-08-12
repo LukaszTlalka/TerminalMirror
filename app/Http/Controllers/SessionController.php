@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Server\Storage as ServerStorage;
 
 class SessionController extends Controller

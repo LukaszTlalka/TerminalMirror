@@ -17,7 +17,7 @@ class WebsocketHttpServer extends Command
      *
      * @var string
      */
-    protected $description = 'Create http server for handling temrinal commands';
+    protected $description = 'Create http server for handling terminal commands';
 
     /**
      * Create a new command instance.

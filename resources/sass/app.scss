@@ -20,6 +20,14 @@ html, body, .full-page { height: 100%; width: 100%; margin: 0; }
     height:calc(100% - 56px);
 }
 
+#alerts-fixed {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    max-width: 400px;
+    z-index: 10;
+}
+
 @import 'console-tutorial';
 @import 'terminal';
 

@@ -8,10 +8,13 @@
 
 const Terminal = require('xterm').Terminal;
 const FitAddon = require('xterm-addon-fit').FitAddon;
+import {sleep} from '../helpers';
+import {Events} from '../events';
 
 export default {
     mounted() {
-        var term = new Terminal({cursorBlink: true});
+        var term = this.terminal = new Terminal({cursorBlink: true});
+        term.onResize(this.onResize);
         const fitAddon = new FitAddon();
         term.loadAddon(fitAddon);
 
@@ -39,7 +42,7 @@ export default {
         term.writeln('');
         term.prompt()
 
-        let conn = new WebSocket(WS.host + (WS.port ? (":" + WS.port) : '' ) + "/console-share?client=" + WS.client);
+        let conn = this.wsConn = new WebSocket(WS.host + (WS.port ? (":" + WS.port) : '' ) + "/console-share?client=" + WS.client);
 
         conn.onmessage = (e) => {
             console.log("Received: " + e.data);
@@ -57,13 +60,8 @@ export default {
         conn.onopen = (e) => {
             term.onKey(e => {
 
-                var printable = !e.domEvent.altKey && !e.domEvent.altGraphKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
-                var msg = JSON.stringify({
-                    c: e.domEvent.keyCode,
-                    k: e.key
-                });
-                console.log("Sending", msg);
-                conn.send(msg);
+                // var printable = !e.domEvent.altKey && !e.domEvent.altGraphKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
+                this.sendKey(e.key);
 
                 return;
 
@@ -82,11 +80,33 @@ export default {
     },
     data: function () {
         return {
+            terminal: null,
+            wsConn: null,
         }
     },
     methods: {
-        startTerminal() {
-        }
+        onResize(size) {
+            Events.$emit('terminalResized', size);
+        },
+
+        async run(command) {
+            this.terminal.focus();
+
+            if (command.charAt(command.length - 1) !== '\n') {
+                command += '\n';
+            }
+
+            for (const char of command) {
+                this.sendKey(char);
+                await sleep(50); // Prevent losing some characters of the command.
+            }
+        },
+
+        sendKey(key) {
+            var msg = JSON.stringify({k: key});
+            console.log("Sending", msg);
+            this.wsConn.send(msg);
+        },
     }
 }
 </script>

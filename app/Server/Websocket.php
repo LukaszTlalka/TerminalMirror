@@ -115,11 +115,11 @@ class Websocket  implements MessageComponentInterface
 
         if ($client->wsStorage) {
 
-            $keyObj = json_decode($msg);
+            $inputObj = json_decode($msg);
 
-            $client->wsStorage->append('inputClient', $keyObj->k);
+            $client->wsStorage->append('inputClient', $inputObj->m);
 
-            $this->logger->info('Message received from ws client: ' . $client->clientID . ' message: '. $keyObj->k);
+            $this->logger->info('Message received from ws client: ' . $client->clientID . ' message: '. $inputObj->m);
         }
     }
 

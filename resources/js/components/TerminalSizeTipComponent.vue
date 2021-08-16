@@ -56,6 +56,7 @@ export default {
 
         runResizeCommand() {
             this.$root.$refs.terminal.run(this.command);
+            this.hide();
         },
     },
 

@@ -8,7 +8,6 @@
 
 const Terminal = require('xterm').Terminal;
 const FitAddon = require('xterm-addon-fit').FitAddon;
-import {sleep} from '../helpers';
 import {Events} from '../events';
 
 export default {
@@ -61,7 +60,7 @@ export default {
             term.onKey(e => {
 
                 // var printable = !e.domEvent.altKey && !e.domEvent.altGraphKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
-                this.sendKey(e.key);
+                this.sendInput(e.key);
 
                 return;
 
@@ -96,14 +95,11 @@ export default {
                 command += '\n';
             }
 
-            for (const char of command) {
-                this.sendKey(char);
-                await sleep(50); // Prevent losing some characters of the command.
-            }
+            this.sendInput(command);
         },
 
-        sendKey(key) {
-            var msg = JSON.stringify({k: key});
+        sendInput(input) {
+            var msg = JSON.stringify({m: input});
             console.log("Sending", msg);
             this.wsConn.send(msg);
         },

@@ -31,9 +31,9 @@ export default {
 
         term.open(document.getElementById('terminal'));
         term.writeln('Welcome to TerminalMirror.com terminal emulator');
-        term.writeln('* Documentation https://terminalmirror.com/documentation');
-        term.writeln('* Usage https://terminalmirror.com/usage');
-        term.writeln('* Operation https://terminalmirror.com/operation');
+        term.writeln('Use at your own risk!');
+        term.writeln('* Documentation https://github.com/LukaszTlalka/TerminalMirror');
+        term.writeln('* Operation https://github.com/LukaszTlalka/TerminalMirror');
 
         term.writeln('');
         term.writeln('You are currently connected to the live terminal.')

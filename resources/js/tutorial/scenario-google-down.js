@@ -64,7 +64,7 @@ class ScenarioGoogleDown extends Scenario {
             'This system has been minimized by removing packages and content that are',
             'not required on a system that users do not log into.',
             'To restore this content, you can run the \'unminimize\' command.',
-            'Last login: Thu Oct 17 07:33:10 2019 from 172.25.0.1'];
+            'Last login: Thu '+(new Date()).toLocaleDateString()+' from 169.254.1.25'];
 
         lines.map((line) => {
             this.addStep(10, () => {

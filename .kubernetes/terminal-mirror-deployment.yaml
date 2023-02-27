@@ -18,10 +18,10 @@ spec:
         app: terminal-mirror-com
     spec:
       imagePullSecrets:
-        - name: core.harbor.kubernetes.netblink.pl
+        - name: harbor.netblink.pl
       containers:
       - name: apache-terminal-mirror-com
-        image: core.harbor.kubernetes.netblink.pl/terminal-mirror/base:master
+        image: harbor.netblink.pl/terminal-mirror/base:master
         env:
         - name: APP_ENV
           value: production
@@ -32,7 +32,7 @@ spec:
         - containerPort: 80
 
       - name: curl-terminal-mirror-com
-        image: core.harbor.kubernetes.netblink.pl/terminal-mirror/base:master
+        image: harbor.netblink.pl/terminal-mirror/base:master
         env:
         - name: APP_ENV
           value: production
@@ -47,7 +47,7 @@ spec:
         - containerPort: 3006
 
       - name: ws-terminal-mirror-com
-        image: core.harbor.kubernetes.netblink.pl/terminal-mirror/base:master
+        image: harbor.netblink.pl/terminal-mirror/base:master
         env:
         - name: APP_ENV
           value: production

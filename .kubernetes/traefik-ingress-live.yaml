@@ -1,0 +1,65 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik-terminal-mirror-com
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: le
+    traefik.ingress.kubernetes.io/router.tls.domains.0.main: "www.terminalmirror.com"
+    traefik.ingress.kubernetes.io/router.tls.domains.1.main: "terminalmirror.com"
+
+spec:
+  rules:
+  - host: "terminalmirror.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: terminal-mirror-com-service
+            port:
+              number: 80
+
+  - host: "www.terminalmirror.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: terminal-mirror-com-service
+            port:
+              number: 80
+  - host: "www.terminalmirror.com"
+    http:
+      paths:
+      - path: /inputClient
+        pathType: Prefix
+        backend:
+          service:
+            name: curl-terminal-mirror-com-service
+            port:
+              number: 3006
+  - host: "www.terminalmirror.com"
+    http:
+      paths:
+      - path: /outputClient
+        pathType: Prefix
+        backend:
+          service:
+            name: curl-terminal-mirror-com-service
+            port:
+              number: 3006
+  - host: "www.terminalmirror.com"
+    http:
+      paths:
+      - path: /console-share
+        pathType: Prefix
+        backend:
+          service:
+            name: ws-terminal-mirror-com-service
+            port:
+              number: 3005

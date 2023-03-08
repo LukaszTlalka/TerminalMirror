@@ -27,6 +27,8 @@ spec:
           value: production
         - name: CI_COMMIT_SHORT_SHA
           value: "$CI_COMMIT_SHORT_SHA"
+        - name: APP_URL
+          value: "https://www.terminalmirror.com"
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -40,6 +42,8 @@ spec:
           value: "$CI_COMMIT_SHORT_SHA"
         - name: APP_SERVER_PORT
           value: "3006"
+        - name: APP_URL
+          value: "https://www.terminalmirror.com"
         imagePullPolicy: Always
         command: ["bash","-c"]
         args: ["cd /share && php artisan server:curl-in"]
@@ -55,6 +59,8 @@ spec:
           value: "$CI_COMMIT_SHORT_SHA"
         - name: WEBSOCKET_SERVER_PORT
           value: "3005"
+        - name: APP_URL
+          value: "https://www.terminalmirror.com"
         imagePullPolicy: Always
         command: ["bash","-c"]
         args: ["cd /share && php artisan server:terminal"]

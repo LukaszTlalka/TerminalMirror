@@ -15,11 +15,11 @@
                     <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.guru.browserWindow"></window-component>
             </div>
         </div>
-        <div class="main-message animated fadeIn" v-if="display.mainMessage.show">
-            <b><i class="fas fa-terminal"></i> TerminalMirror</b>
-            <div id='motive' v-if="display.mainMessage.showMotive" class="animated fadeIn slow">
-                <h1>The easy way to share<br>access to terminals</h1>
-                <div><button v-on:click="startTutorial" class="btn btn-info">Watch Preview?</button> or <a href="/new-session" class="btn btn-info">Start a new session</a></div>
+        <div class="main-message" v-if="display.mainMessage.show">
+            <div class="logo"><b class="d-flex align-items-baseline justify-content-center"><i class="fas fa-terminal"></i><span class="console-type">TerminalMirror</span><span class="console-cursor"></span></b></div>
+            <div id='motive' v-if="display.mainMessage.showMotive" >
+                <h1 class="text-muted">The easy way to share<br>access to terminals</h1>
+                <div><button v-on:click="startTutorial" class="btn btn-outline-primary">Watch Preview</button><a href="/new-session" class="btn btn-primary">Start session</a></div>
             </div>
         </div>
     </div>
@@ -40,6 +40,24 @@ export default {
             this.slider.max = total;
         })
 
+        
+        document.querySelectorAll('.console-type').forEach((element) => {
+            let content = [...element.innerText];
+            element.innerText = "";
+
+            let index = 0;
+            let tempString = "";
+
+            (function loop() {
+                setTimeout(() => {
+                    tempString += content[index];
+                    element.innerHTML = tempString;
+                    index ++;
+                    if (content.length != index )
+                        loop();
+                }, 150);
+            })();
+        });
 
         /*
             this.display.mainMessage.show = false;

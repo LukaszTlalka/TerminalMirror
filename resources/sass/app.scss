@@ -1,10 +1,37 @@
 @use 'node_modules/highlight.js/scss/dark';
-@import url('https://fonts.googleapis.com/css?family=Nova+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Ubuntu');
+
+
+$dark: #18122B;
+$gray: #393053;
+$secondary: #443C68;
+$primary:#635985;
 
 html, body, .full-page { height: 100%; width: 100%; margin: 0; }
 
+
 .navbar {
         background: url("/images/texture-dark.png");
+        align-items: baseline;
+}
+
+.highlight {
+  background-image:
+      linear-gradient(90deg, $primary 100%, $secondary 0%);
+  background-size: 100% 3px;
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  padding-bottom: 4px;
+  text-decoration: none!important;
+  transition: background-size 200ms ease-in-out;
+  &.link {
+      background-size: 100% 0px;
+      color: $primary !important;
+      cursor: pointer;
+  }
+  &:hover {
+      background-size: 100% 3px;
+  }
 }
 
 #consoleShareApp {
@@ -14,6 +41,7 @@ html, body, .full-page { height: 100%; width: 100%; margin: 0; }
         padding-top: 0;
     }
 }
+
 
 .full-height {
     display:block;
@@ -30,6 +58,24 @@ html, body, .full-page { height: 100%; width: 100%; margin: 0; }
 
 @import 'console-tutorial';
 @import 'terminal';
+@import 'page';
+
+@keyframes blink {
+  0% {opacity: 1}
+  50% {opacity: 0}
+  100% {opacity: 0}
+}
+
+.console-cursor {
+  display: inline-block;
+  margin-left: 0.2rem;
+  height: 2.8rem;
+  width: 1.5rem;
+  background-color: white;
+  animation: blink 700ms infinite steps(3, end);
+}
+
+
 
 
 /*

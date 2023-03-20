@@ -24,6 +24,10 @@ Route::get('/', function () {
     return view('tutorial');
 });
 
+Route::get('/how-it-works', function () {
+    return view('how-it-works');
+})->name('how-it-works');
+
 Route::get('/new-session', 'SessionController@create');
 Route::get('/check-curl-session/{hash}', 'SessionController@checkCurlSession')->name('check-curl-session');
 Route::get('/terminal/{hash}', 'SessionController@terminal')

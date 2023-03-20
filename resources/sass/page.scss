@@ -1,0 +1,35 @@
+.page {
+    font-family: Ubuntu;
+    background-color: black;
+    color: white;
+    .title {
+        color: $primary;
+        &:after {
+            content: "";
+            display: block;
+            position: absolute;
+            height: 5px;
+            width: 100%;
+            background: black;
+            background: linear-gradient(270deg, rgba(2,0,36,0.28895308123249297) 0%, $dark 100%);
+        }
+    }
+    .subtitle {
+        padding-top: 2rem;
+        color: $primary;
+        &:before {
+            content: "\f105";
+            font-family: 'Font Awesome 5 Free';
+            font-weight: bold;
+            font-style: normal;
+            font-variant: normal;
+            color: $primary;
+            padding-right: 0.5rem;
+        }
+    }
+    .content {
+        padding-left: 2rem;
+        text-indent: 1rem;
+        line-height: 160%;
+    }
+}

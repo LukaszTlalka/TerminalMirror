@@ -13,6 +13,33 @@
                 margin: 30px 10px;
                 padding: 10px 20px;
                 width: 200px;
+                &.btn-primary {
+                    background-color: $primary;
+                    border-color: $secondary;
+                    outline-color: $secondary;
+                    &:hover {
+                        border-color: $primary;
+                        background-color: $secondary;
+                    }
+                    &:focus {
+                        box-shadow: 0 0 0 0.2rem $secondary;
+                    }
+                }
+
+                &.btn-outline-primary {
+                    border-color: $primary;
+                    color: $primary;
+                    outline-color: $secondary;
+                    &:hover {
+                        border-color: $secondary;
+                        background-color: $primary;
+                        color: white;
+                    }
+                    &:focus {
+                        box-shadow: 0 0 0 0.2rem $secondary;
+                    }
+                }
+
             }
 
         }
@@ -26,7 +53,6 @@
         text-align: center;
         width: 100%;
         top: 38%;
-        color: #988345;
 
         h1 {
             padding-top: 30px;
@@ -57,7 +83,8 @@
         }
 
         .screen2 {
-            background: rgba(24,25,26,0.7);
+            background: black;
+            background: linear-gradient(270deg, rgba(2,0,36,0.28895308123249297) 0%, $dark 100%);
             float:right;
             position:relative;
         }

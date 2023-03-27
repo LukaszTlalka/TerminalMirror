@@ -5,6 +5,7 @@
                 <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.noob.terminalWindow"></window-component>
                 <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.noob.chatWindow"></window-component>
                 <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.noob.browserWindow"></window-component>
+                <dummy-code-component role="master" @masterUpdate="slaveUpdate"></dummy-code-component>
             </div>
             <div class='half-screen screen2'>
                 <span class='scenario-slider animate pulse' v-if="!display.mainMessage.show">
@@ -13,13 +14,16 @@
 
                     <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.guru.chatWindow"></window-component>
                     <window-component v-if="enabled" v-bind:speedRun="speedRun" v-bind:windowData="display.guru.browserWindow"></window-component>
+                    <dummy-code-component role="slave" :masterData="bgCodeData"></dummy-code-component>
             </div>
         </div>
-        <div class="main-message" v-if="display.mainMessage.show">
-            <div class="logo"><b class="d-flex align-items-baseline justify-content-center"><i class="fas fa-terminal"></i><span class="console-type">TerminalMirror</span><span class="console-cursor"></span></b></div>
-            <div id='motive' v-if="display.mainMessage.showMotive" >
-                <h1 class="text-muted">The easy way to share<br>access to terminals</h1>
-                <div><button v-on:click="startTutorial" class="btn btn-outline-primary">Watch Preview</button><a href="/new-session" class="btn btn-primary">Start session</a></div>
+        <div class="main-message d-flex align-items-center justify-content-center" v-if="display.mainMessage.show">
+            <div class="main-box">
+                <div class="logo"><b class="d-flex align-items-baseline justify-content-center"><i class="fas fa-terminal"></i><span class="console-type">TerminalMirror</span><span class="console-cursor"></span></b></div>
+                <div id='motive' v-if="display.mainMessage.showMotive" >
+                    <h1>The easy way to share<br>access to terminals</h1>
+                    <div><button v-on:click="startTutorial" class="btn btn-outline-primary">Watch Preview</button><a href="/new-session" class="btn btn-primary">Start session</a></div>
+                </div>
             </div>
         </div>
     </div>
@@ -43,10 +47,10 @@ export default {
         
         document.querySelectorAll('.console-type').forEach((element) => {
             let content = [...element.innerText];
-            element.innerText = "";
+            element.innerText = content[0];
 
-            let index = 0;
-            let tempString = "";
+            let index = 1;
+            let tempString = content[0];
 
             (function loop() {
                 setTimeout(() => {
@@ -67,6 +71,7 @@ export default {
     },
     data: function () {
         return {
+            bgCodeData : [],
             enabled: true,
             scenario: null,
             speedRun: false,
@@ -153,6 +158,9 @@ export default {
         },
         slideStop(step) {
             this.scenario.jumpToStep(step)
+        },
+        slaveUpdate(value) {
+            this.bgCodeData = value;
         }
     }
 }

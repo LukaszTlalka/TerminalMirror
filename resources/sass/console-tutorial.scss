@@ -2,8 +2,10 @@
     color: white;
 
     .main-message {
-        #motive {
 
+        transform: translateY(-56px);
+        #motive {
+            color: $primary;
             animation-delay: 2s;
 
             .btn {
@@ -13,33 +15,6 @@
                 margin: 30px 10px;
                 padding: 10px 20px;
                 width: 200px;
-                &.btn-primary {
-                    background-color: $primary;
-                    border-color: $secondary;
-                    outline-color: $secondary;
-                    &:hover {
-                        border-color: $primary;
-                        background-color: $secondary;
-                    }
-                    &:focus {
-                        box-shadow: 0 0 0 0.2rem $secondary;
-                    }
-                }
-
-                &.btn-outline-primary {
-                    border-color: $primary;
-                    color: $primary;
-                    outline-color: $secondary;
-                    &:hover {
-                        border-color: $secondary;
-                        background-color: $primary;
-                        color: white;
-                    }
-                    &:focus {
-                        box-shadow: 0 0 0 0.2rem $secondary;
-                    }
-                }
-
             }
 
         }

@@ -1,4 +1,4 @@
-@use 'node_modules/highlight.js/scss/dark';
+@use 'node_modules/highlight.js/scss/github-dark-dimmed';
 @import url('https://fonts.googleapis.com/css?family=Ubuntu');
 
 
@@ -11,8 +11,15 @@ html, body, .full-page { height: 100%; width: 100%; margin: 0; }
 
 
 .navbar {
-        background: url("/images/texture-dark.png");
-        align-items: baseline;
+  background-color: rgb(0 0 0);
+  box-shadow: inset 0px -15px 60px 1px $dark;
+  align-items: baseline;
+  z-index: 5000;
+}
+.main-box {
+  width: fit-content;
+  backdrop-filter: blur(2px);
+  filter: drop-shadow(0 0 2rem black);
 }
 
 .highlight {
@@ -76,6 +83,41 @@ html, body, .full-page { height: 100%; width: 100%; margin: 0; }
 }
 
 
+.btn {
+  &.btn-primary {
+      background-color: $primary;
+      border-color: $secondary;
+      outline-color: $secondary;
+      &:hover {
+          border-color: $primary;
+          background-color: $secondary;
+      }
+      &:focus {
+          box-shadow: 0 0 0 0.2rem $secondary;
+      }
+      &:active {
+        background-color: $primary!important;
+        border-color: $secondary!important;
+        outline-color: $gray!important;
+        box-shadow: 0 0 0 0.2rem $primary!important;
+      }
+  }
+
+  &.btn-outline-primary {
+      border-color: $primary;
+      color: $primary;
+      outline-color: $secondary;
+      &:hover {
+          border-color: $secondary;
+          background-color: $primary;
+          color: white;
+      }
+      &:focus {
+          box-shadow: 0 0 0 0.2rem $secondary;
+      }
+  }
+
+}
 
 
 /*

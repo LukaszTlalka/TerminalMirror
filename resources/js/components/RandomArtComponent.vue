@@ -1,7 +1,3 @@
-
-$secondary: #443C68;
-$primary:#635985;
-
 <style scoped>
 
 .art-block {
@@ -38,6 +34,7 @@ $primary:#635985;
 </style>
 
 <template>
+    <div>
     <div class="user-select-none art-block">
         <div v-for="line in lines" :key="line" class="bar" :style="`width: max(10%, ${line*100}%)`">
         </div>
@@ -46,6 +43,7 @@ $primary:#635985;
             <div class="input-bar" :style="`width: max(15%, ${input*100}%)`"></div>
         </div>
     </div>
+</div>
 </template>
 
 <script>
@@ -63,6 +61,9 @@ export default {
         }
         this.input = Math.random();
     },
+    methods: {
+
+    }
     
 }
 </script>

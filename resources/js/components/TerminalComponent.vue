@@ -1,5 +1,5 @@
 <template>
-    <div class='full-page'>
+    <div class='full-page' v-on:keyup.alt.67="copy" v-on:keyup.alt.86="paste">
         <div id="terminal" style="height:100%"></div>
     </div>
 </template>
@@ -84,6 +84,14 @@ export default {
         }
     },
     methods: {
+        copy(event) {
+
+        },
+
+        paste(event) {
+            console.log(Clipboard.readText());
+        },
+
         onResize(size) {
             Events.$emit('terminalResized', size);
         },

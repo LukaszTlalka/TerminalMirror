@@ -29,7 +29,7 @@
 
     </head>
     <body>
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-md navbar-dark">
             <div class='container w-100 d-flex align-items-baseline justify-content-space-between'>
                 <a class="navbar-brand" href="/"><b><i class="fas fa-terminal"></i></b> TerminalMirror</a>
                 <a class="navbar-about-link highlight link" href="{{route("how-it-works")}}"> How It Works?</a>

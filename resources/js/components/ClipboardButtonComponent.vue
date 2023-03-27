@@ -1,5 +1,5 @@
 <template>
-    <button class="btn btn-success btn-sm" @click="copy">{{ dataText }}</button>
+    <button class="btn btn-primary" @click="copy">{{ dataText }}</button>
 </template>
 
 <script>

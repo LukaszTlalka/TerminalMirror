@@ -27,7 +27,7 @@ class CurlInHttpServer extends Command
      *
      * @var string
      */
-    protected $signature = 'server:curl-in {debug?}';
+    protected $signature = 'server:curl-in {debug?} {port?}';
 
     /**
      * The console command description.
@@ -49,7 +49,8 @@ class CurlInHttpServer extends Command
     private function startServer()
     {
         $command = $this;
-        $debug = $this->argument('debug') ? true : false;
+        $debug = $this->argument('debug') == 'true' ? true : false;
+        $port = $this->argument('port') ? $this->argument('port') : env("APP_SERVER_PORT");
 
         $logger = new class($command, $debug) {
             public function __construct($command, $debug) {
@@ -67,16 +68,9 @@ class CurlInHttpServer extends Command
 
         $clients = [];
 
-        /*
-            \Amp\Loop::repeat(1000, function() {
-                echo "aaa";
-            });
-         */
+        \Amp\Loop::run(function () use ($logger, $port) {
 
-
-        \Amp\Loop::run(function () use ($logger) {
-
-            $hostPort = "0.0.0.0:".env("APP_SERVER_PORT");
+            $hostPort = "0.0.0.0:".$port;
 
             $server = \Amp\Socket\listen($hostPort);
 
@@ -87,7 +81,6 @@ class CurlInHttpServer extends Command
                 $client = new \App\Server\Client($reader, $logger);
             }
         });
-
     }
 
     /**

@@ -10,7 +10,7 @@ class WebsocketHttpServer extends Command
      *
      * @var string
      */
-    protected $signature = 'server:terminal-websocket {debug?}';
+    protected $signature = 'server:terminal-websocket {debug?} {port?}';
 
     /**
      * The console command description.
@@ -37,7 +37,8 @@ class WebsocketHttpServer extends Command
     public function handle()
     {
         // Handle debug log
-        $debug = $this->argument('debug') ? true : false;
+        $debug = $this->argument('debug') == 'true' ? true : false;
+        $port = $this->argument('port') ? $this->argument('port') : env("WEBSOCKET_SERVER_PORT");
 
         $command = $this;
 
@@ -61,7 +62,7 @@ class WebsocketHttpServer extends Command
         $host = parse_url(config('app.url'))['host'];
 
         // Run the server application through the WebSocket protocol on port env('WEBSOCKET_SERVER_PORT')
-        $app = new \Ratchet\App($host, env('WEBSOCKET_SERVER_PORT'), '0.0.0.0', $loop);
+        $app = new \Ratchet\App($host, $port, '0.0.0.0', $loop);
         $app->route('/console-share', new \App\Server\Websocket($loop, $logger), array('*'));
         $app->route('/echo', new \Ratchet\Server\EchoServer, array('*'));
         $app->run();

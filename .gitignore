@@ -16,3 +16,4 @@ yarn-error.log
 /public/css
 /public/mix-manifest.json
 storage/console-sessions
+.docker/docker_volumes

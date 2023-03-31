@@ -57,10 +57,10 @@ html, body, .full-page { height: 100%; width: 100%; margin: 0; }
 
 #alerts-fixed {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 66px;
+    right: 20px;
     max-width: 400px;
-    z-index: 10;
+    z-index: 9999;
 }
 
 @import 'console-tutorial';

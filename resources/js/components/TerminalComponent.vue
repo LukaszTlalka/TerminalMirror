@@ -1,5 +1,5 @@
 <template>
-    <div class='full-page' v-on:keyup.alt.67="copy" v-on:keyup.alt.86="paste">
+    <div class='full-page' v-on:keyup.esc.exact.prevent.stop="copy" v-on:keyup.ctrl.shift.86.prevent.stop="paste" @paste="paste">
         <div id="terminal" style="height:100%"></div>
     </div>
 </template>
@@ -14,6 +14,7 @@ export default {
     mounted() {
         var term = this.terminal = new Terminal({cursorBlink: true});
         term.onResize(this.onResize);
+
         const fitAddon = new FitAddon();
         term.loadAddon(fitAddon);
 
@@ -57,13 +58,18 @@ export default {
         };
 
         conn.onopen = (e) => {
-            term.onKey(e => {
 
-                // var printable = !e.domEvent.altKey && !e.domEvent.altGraphKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
-                this.sendInput(e.key);
+            term.onData(data => {
+                this.sendInput(data);
 
                 return;
+            });
 
+            /** This method does not allow to have input other than key up
+            term.onKey(e => {
+                // var printable = !e.domEvent.altKey && !e.domEvent.altGraphKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
+                this.sendInput(e.key);
+                    return;
                 if (e.domEvent.keyCode === 13) {
                     term.prompt()
                 } else if (e.domEvent.keyCode === 8) {
@@ -75,21 +81,34 @@ export default {
                     term.write(e.key);
                 }
             });
+            */
         };
     },
     data: function () {
         return {
             terminal: null,
             wsConn: null,
+            selection: null,
         }
     },
+    watch: {
+
+    },
     methods: {
-        copy(event) {
-
+        onSelection(selection) {
+            this.selection = selection;
         },
-
+        copy(event) {
+            console.log(this.terminal.getSelection())
+            navigator.clipboard
+                .writeText(this.selection);
+        },
         paste(event) {
-            console.log(Clipboard.readText());
+            navigator.clipboard
+                .readText()
+                .then((cliptext) => {
+                    this.sendInput(cliptext);
+                })
         },
 
         onResize(size) {

@@ -2,7 +2,7 @@
 
 .bg-console {
     opacity: 0.3;
-    filter: blur(1px);
+    filter: blur(2px);
     user-select: none;
     overflow-y: hidden;
     position: absolute;

@@ -30,7 +30,7 @@
         "js-cookie": "^3.0.1",
         "typed.js": "^2.0.15",
         "vue-bootstrap-slider": "^2.1.8",
-        "xterm": "^4.19.0",
-        "xterm-addon-fit": "^0.3.0"
+        "xterm": "5.1.0",
+        "xterm-addon-fit": "^0.7.0"
     }
 }

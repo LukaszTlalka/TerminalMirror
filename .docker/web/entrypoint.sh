@@ -1,5 +1,7 @@
 #!/bin/sh
 
+su - $(id -un 1000)
+
 cd /var/www
 
 chmod -R 777 bootstrap/cache

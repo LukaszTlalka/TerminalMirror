@@ -45,7 +45,7 @@ export default {
         let conn = this.wsConn = new WebSocket(WS.host + (WS.port ? (":" + WS.port) : '' ) + "/console-share?client=" + WS.client);
 
         conn.onmessage = (e) => {
-            console.log("Received: " + e.data);
+            //console.log("Received: " + e.data);
             let msg = JSON.parse(e.data);
 
             if (msg.c == 8) {
@@ -99,7 +99,7 @@ export default {
             this.selection = selection;
         },
         copy(event) {
-            console.log(this.terminal.getSelection())
+            //console.log(this.terminal.getSelection())
             navigator.clipboard
                 .writeText(this.selection);
         },
@@ -127,7 +127,7 @@ export default {
 
         sendInput(input) {
             var msg = JSON.stringify({m: input});
-            console.log("Sending", msg);
+            //console.log("Sending", msg);
             this.wsConn.send(msg);
         },
     }

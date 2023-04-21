@@ -34,6 +34,8 @@ spec:
         - containerPort: 80
         - containerPort: 3006
         - containerPort: 3005
+        command: ["bash","-c"]
+        args: ["/share/.docker/entrypoint.sh"]
 
 #     - name: curl-terminal-mirror-com
 #       image: harbor.netblink.pl/terminal-mirror/base:master

@@ -59,7 +59,9 @@
 </template>
 
 <script>
-const Typed = require('typed.js');
+import Typed from 'typed.js';
+
+
 export default {
     props: ['windowData', 'speedRun'],
     methods: {
@@ -76,6 +78,7 @@ export default {
 
             return new Promise((resolve) => {
                 if (options.typeSpeed && this.speedRun == false) {
+                    console.log(Typed);
                     let typed = new Typed("#" + lineID, Object.assign({
                         onComplete: function() {
                             setTimeout( () => {

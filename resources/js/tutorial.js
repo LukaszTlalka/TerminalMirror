@@ -1,7 +1,7 @@
 const xTerm = require('xterm');
 
 const Terminal = xTerm.Terminal
-const Typed = require('typed.js');
+import Typed from 'typed.js';
 
 class Tutorial {
 

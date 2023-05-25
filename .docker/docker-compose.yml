@@ -3,7 +3,6 @@ version: '3.3'
 services:
   web:
     container_name: terminal-mirror
-    restart: always
     build:
       dockerfile: .docker/web/Dockerfile
       context: ..

@@ -88,7 +88,7 @@ export default {
                     terminalWindow: {
                         name: 'noob-term',
                         type: 'terminal',
-                        title: 'Termianl session',
+                        title: 'Terminal session',
                         show: false,
                         active: false,
                     },

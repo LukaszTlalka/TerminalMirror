@@ -49,7 +49,7 @@ return [
 
         'terminal' => [
             'driver' => 'file',
-            'timeout' => 60*60*8,
+            'timeout' => 60*60*2,
             'path' => storage_path('framework/cache/data'),
         ],
 

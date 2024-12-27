@@ -1,23 +1,29 @@
 <template>
-    <div class='full-page' v-on:keyup.esc.exact.prevent.stop="copy" v-on:keyup.ctrl.shift.86.prevent.stop="paste" @paste="paste">
+    <div
+        class='full-page'
+        v-on:keyup.esc.exact.prevent.stop="copy"
+        v-on:keyup.ctrl.shift.86.prevent.stop="paste"
+        @paste="paste"
+    >
         <div id="terminal" style="height:100%"></div>
     </div>
 </template>
 
 <script>
-
 const Terminal = require('xterm').Terminal;
 const FitAddon = require('xterm-addon-fit').FitAddon;
-import {Events} from '../events';
+import { Events } from '../events';
 
 export default {
     mounted() {
-        var term = this.terminal = new Terminal({cursorBlink: true});
+        // Initialize Terminal
+        var term = (this.terminal = new Terminal({ cursorBlink: true }));
         term.onResize(this.onResize);
 
         const fitAddon = new FitAddon();
         term.loadAddon(fitAddon);
 
+        // Fit the terminal initially and periodically
         setInterval(() => {
             fitAddon.fit();
         }, 1000);
@@ -30,91 +36,71 @@ export default {
             term.write('\r\n');
         };
 
+        // Open the terminal in the specified DOM element
         term.open(document.getElementById('terminal'));
         term.writeln('Welcome to TerminalMirror.com terminal emulator');
         term.writeln('Use at your own risk!');
         term.writeln('* Documentation https://github.com/LukaszTlalka/TerminalMirror');
         term.writeln('* Operation https://github.com/LukaszTlalka/TerminalMirror');
-
         term.writeln('');
-        term.writeln('You are currently connected to the live terminal.')
-        term.writeln('Type command to play around.');
+        term.writeln('You are currently connected to the live terminal.');
+        term.writeln('Type commands to interact.');
         term.writeln('');
-        term.prompt()
+        term.prompt();
 
-        let conn = this.wsConn = new WebSocket(WS.host + (WS.port ? (":" + WS.port) : '' ) + "/console-share?client=" + WS.client);
+        // Initialize WebSocket connection
+        let conn = (this.wsConn = new WebSocket(
+            WS.host + (WS.port ? ':' + WS.port : '') + '/console-share?client=' + WS.client
+        ));
 
         conn.onmessage = (e) => {
-            //console.log("Received: " + e.data);
             let msg = JSON.parse(e.data);
 
             if (msg.c == 8) {
                 term.write('\b \b');
             } else if (msg.c === 13) {
-                term.prompt()
+                term.prompt();
             } else {
-                term.write(msg.k)
+                term.write(msg.k);
             }
         };
 
         conn.onopen = (e) => {
-
-            term.onData(data => {
+            term.onData((data) => {
                 this.sendInput(data);
-
                 return;
             });
-
-            /** This method does not allow to have input other than key up
-            term.onKey(e => {
-                // var printable = !e.domEvent.altKey && !e.domEvent.altGraphKey && !e.domEvent.ctrlKey && !e.domEvent.metaKey;
-                this.sendInput(e.key);
-                    return;
-                if (e.domEvent.keyCode === 13) {
-                    term.prompt()
-                } else if (e.domEvent.keyCode === 8) {
-                    // Do not delete the prompt
-                    if (term._core.buffer.x > 2) {
-                        term.write('\b \b');
-                    }
-                } else if (printable) {
-                    term.write(e.key);
-                }
-            });
-            */
         };
+
+        // Attach the beforeunload event listener for confirmation
+        window.addEventListener('beforeunload', this.handleBeforeUnload);
     },
-    data: function () {
+    beforeUnmount() {
+        // Remove the beforeunload event listener to prevent memory leaks
+        window.removeEventListener('beforeunload', this.handleBeforeUnload);
+    },
+    data() {
         return {
             terminal: null,
             wsConn: null,
             selection: null,
-        }
-    },
-    watch: {
-
+        };
     },
     methods: {
         onSelection(selection) {
             this.selection = selection;
         },
         copy(event) {
-            //console.log(this.terminal.getSelection())
-            navigator.clipboard
-                .writeText(this.selection);
+            navigator.clipboard.writeText(this.selection);
         },
         paste(event) {
-            navigator.clipboard
-                .readText()
-                .then((cliptext) => {
-                    this.sendInput(cliptext);
-                })
+            navigator.clipboard.readText().then((cliptext) => {
+                this.sendInput(cliptext);
+            });
         },
-
         onResize(size) {
             Events.$emit('terminalResized', size);
         },
-
         async run(command) {
             this.terminal.focus();
 
@@ -124,14 +110,29 @@ export default {
 
             this.sendInput(command);
         },
-
         sendInput(input) {
-            var msg = JSON.stringify({m: input});
-            //console.log("Sending", msg);
+            var msg = JSON.stringify({ m: input });
             this.wsConn.send(msg);
         },
-    }
-}
+        handleBeforeUnload(event) {
+            // Customize the condition under which the confirmation should appear
+            // For example, only prompt if the WebSocket is still open
+            if (this.wsConn && this.wsConn.readyState === WebSocket.OPEN) {
+                event.preventDefault();
+                event.returnValue = ''; // Required for Chrome to show the prompt
+                // The return statement is optional and can be omitted
+                return '';
+            }
+            // If no prompt is needed, do nothing
+        },
+    },
+};
 </script>
 
-
+<style scoped>
+.full-page {
+    width: 100%;
+    height: 100%;
+    /* Add any additional styling as needed */
+}
+</style>
